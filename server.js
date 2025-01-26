@@ -11,6 +11,6 @@ app.get('/cekidch', async (req, res) => {
   res.send(teks);
 });
 
-app.listen(3000, () => {
-  console.log('Server started on port 3000');
+app.listen(8080, () => {
+  console.log('Server started on port 8080');
 });
