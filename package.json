@@ -1,10 +1,10 @@
 {
-  "name": "chatbot-awanbrayy",
+  "name": "TANIA BAU TAI WKWK",
   "version": "1.0.0",
-  "description": "A simple chatbot application using Node.js and Express.",
-  "main": "index.js",
+  "description": " application using Node.js and Express.",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "keywords": ["chatbot", "nodejs", "express", "openai"],
   "author": "AwanBrayy",
