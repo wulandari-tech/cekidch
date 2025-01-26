@@ -1,7 +1,6 @@
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
-const fetch = require('node-fetch');
 const fs = require("fs");
 const FormData = require('form-data');
 const crypto = require("crypto");
