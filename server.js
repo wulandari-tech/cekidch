@@ -1,64 +1,93 @@
 const express = require('express');
-const path = require('path');
-const { default: makeWASocket } = require('@adiwajshing/baileys');
-
+const axios = require('axios');
+const chalk = require("chalk");
+const cheerio = require('cheerio');
+const fetch = require('node-fetch');
+const fs = require("fs");
+const FormData = require('form-data');
+const crypto = require("crypto");
+const { pinterest, igdl, pinterest2, remini, mediafire, tiktok } = require('./downloader');
 const app = express();
+const PORT = 8080;
 
-// Membuat koneksi Baileys tanpa autentikasi (langsung cek tanpa login)
-const conn = makeWASocket();
 
-// Endpoint untuk mengecek ID channel
-app.get('/cekidch', async (req, res) => {
-  const text = req.query.text;
+app.use(express.json({limit: '10mb'}))
+// app.use(express.static('public')) // Hapus baris ini
 
-  if (!text) return res.send('Masukkan Link Channel Terlebih Dahulu!');
-  if (!text.includes('https://whatsapp.com/channel/')) return res.send('Link tautan tidak valid');
+//Endpoint for tiktok
+app.post('/tiktok', async (req, res) => {
+   try {
+     const { text } = req.body;
+      const result = await tiktok(text);
+     res.json(result);
+   } catch (error) {
+      res.status(500).json({ message: error.message });
+   }
+});
 
-  const result = text.split('https://whatsapp.com/channel/')[1];
-
+// Endpoint for Pinterest
+app.get('/pinterest', async (req, res) => {
   try {
-    // Mengambil metadata channel tanpa autentikasi
-    const metadata = await conn.query({
-      tag: 'iq',
-      attrs: {
-        type: 'get',
-        xmlns: 'w:biz:catalog',
-        to: `newsletter.${result}@broadcast`,
-      },
-      content: [{ tag: 'newsletter', attrs: { jid: `${result}@broadcast` } }],
-    });
-
-    // Parsing data metadata
-    const channelInfo = metadata.content?.[0]?.attrs;
-    const subscribers = channelInfo.subscribers || 'Tidak diketahui';
-    const name = channelInfo.name || 'Tidak diketahui';
-    const id = `${result}@newsletter`;
-    const state = channelInfo.state || 'Tidak diketahui';
-    const verified = channelInfo.verified === 'true' ? 'Terverifikasi' : 'Tidak';
-
-    // Menyusun hasil
-    const teks = `
-* *ID :* ${id}
-* *Nama :* ${name}
-* *Total Pengikut :* ${subscribers}
-* *Status :* ${state}
-* *Verified :* 
-${verified}
-    `.trim();
-
-    res.send(teks);
+    const { query } = req.query;
+    const results = await pinterest(query);
+    res.json(results);
   } catch (error) {
-    console.error('Error:', error);
-    res.send('Channel tidak ditemukan atau terjadi kesalahan saat mengambil data.');
+    res.status(500).json({ message: error.message });
+  }
+});
+// Endpoint for Pinterest V2
+app.get('/pinterest2', async (req, res) => {
+  try {
+    const { query } = req.query;
+    const results = await pinterest2(query);
+    res.json(results);
+  } catch (error) {
+     res.status(500).json({ message: error.message });
   }
 });
 
-// Middleware untuk melayani file index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+// Endpoint for mediafire
+app.get('/mediafire', async (req, res) => {
+   try {
+     const { query } = req.query;
+     const results = await mediafire(query);
+     res.json(results);
+  } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 });
 
-// Menjalankan server
-app.listen(8080, () => {
-  console.log('Server started on port 8080');
+
+//endpoint for igdl
+app.get('/igdl', async (req, res) => {
+  try {
+      const { query } = req.query;
+      const results = await igdl(query);
+      res.json(results);
+  } catch (error) {
+       res.status(500).json({ message: error.message });
+    }
+});
+//Endpoint Remini
+app.post('/remini', async (req, res) => {
+    try {
+        const { image } = req.body;
+        const buffer = Buffer.from(image.split(",")[1], "base64");
+        const enhancedImage = await remini(buffer);
+        res.set('Content-Type', 'image/jpeg');
+        res.send(enhancedImage);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
+
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
