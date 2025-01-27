@@ -280,69 +280,71 @@
 
         });
        });
+    async function handleImageUpload() {
+        const imageInput = document.getElementById('imageInput');
+        const outputDiv = document.getElementById('output');
+        const cardContainer = $('.card-container');
+        const cardUrl = $('.card-url');
+        const processingText = $('.processing-text');
+        const spinner = $('.sk-folding-cube');
 
-      async function handleImageUpload() {
-            const imageInput = document.getElementById('imageInput');
-            const outputDiv = document.getElementById('output');
-            const cardContainer = $('.card-container');
-            const cardUrl = $('.card-url');
-            const processingText = $('.processing-text')
-             const spinner = $('.sk-folding-cube')
+        const file = imageInput.files[0];
 
-
-            const file = imageInput.files[0];
-
-            if (!file) {
-                outputDiv.innerText = 'Please select an image.';
-                 cardContainer.hide();
-                return;
-            }
-
-            const mime = file.type;
-            if (!/image/.test(mime)) {
-                outputDiv.innerText = 'Invalid file type. Please select an image.';
-                 cardContainer.hide();
-                return;
-            }
-          processingText.text('Uploading image...').show()
-          cardContainer.hide()
-          spinner.show();
-
-
-            const formData = new FormData();
-            formData.append('image', file);
-
-           try {
-                const response = await fetch('https://gemini.wanzofc.us.kg/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                if (!response.ok) {
-                  const errorText = await response.text();
-                   outputDiv.innerText = `Upload failed: ${errorText}`;
-                   processingText.hide()
-                   spinner.hide();
-                   return;
-                }
-
-              const data = await response.json();
-              processingText.hide()
-               cardUrl.text(data.url);
-               cardContainer.fadeIn();
-              spinner.hide();
-
-
-            } catch (error) {
-               outputDiv.innerText = 'Error during upload:' + error.message;
-               processingText.hide()
-                spinner.hide();
-            }
+        if (!file) {
+            outputDiv.innerText = 'Please select an image.';
+            cardContainer.hide();
+            return;
         }
 
-       function example(text) {
-           return text;
-       }
+        const mime = file.type;
+        if (!/image/.test(mime)) {
+            outputDiv.innerText = 'Invalid file type. Please select an image.';
+            cardContainer.hide();
+            return;
+        }
+
+        processingText.text('Uploading image...').show();
+        cardContainer.hide();
+        spinner.show();
+
+        const formData = new FormData();
+        formData.append('file', file); // Sesuaikan key file agar cocok dengan `server.js`
+
+        try {
+            const response = await fetch('https://gemini.wanzofc.us.kg/upload', {
+                method: 'POST',
+                headers: {
+                    // Tambahkan header jika diperlukan oleh server.js
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                outputDiv.innerText = `Upload failed: ${errorText}`;
+                processingText.hide();
+                spinner.hide();
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.url) {
+                processingText.hide();
+                cardUrl.text(data.url);
+                cardContainer.fadeIn();
+                spinner.hide();
+            } else {
+                outputDiv.innerText = 'Server response does not contain URL.';
+                processingText.hide();
+                spinner.hide();
+            }
+        } catch (error) {
+            outputDiv.innerText = 'Error during upload: ' + error.message;
+            processingText.hide();
+            spinner.hide();
+        }
+       } 
     </script>
 </body>
 </html>
