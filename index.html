@@ -4,25 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>downloader by wanzofc</title>
+     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- GSAP for Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <!-- SweetAlert for Alerts -->
+     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+     <!--  aos -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     <style>
         body {
             padding: 20px;
+            background-color: #f8f9fa; /* Light gray background */
+            font-family: 'Arial', sans-serif; /* Use a common font */
         }
+        h1 {
+            color: #343a40; /* Dark gray for headings */
+            margin-bottom: 30px;
+            text-align: center; /* Center the heading */
+             animation: fadeInDown 1s both;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #495057; /* Darker gray for labels */
+        }
+
+        .form-select, .form-control {
+            border-color: #ced4da;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+         .form-select:focus, .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+          }
+        .btn-primary {
+            background-color: #007bff; /* Bootstrap primary blue */
+             border: none;
+            transition: background-color 0.3s ease;
+        }
+          .btn-primary:hover {
+               background-color: #0056b3; /* Darker blue on hover */
+           }
         .result-card {
             margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+             transition: transform 0.3s ease;
         }
-        #reminiUpload {
-          display: none;
+            .result-card:hover {
+                transform: translateY(-5px)
+            }
+
+        .result-card img {
+            border-top-left-radius: 8px;
+             border-top-right-radius: 8px;
+             height: 200px;
+             object-fit: cover;
+
         }
+        .result-card .card-body {
+             padding: 15px;
+        }
+        .result-card .card-title{
+            font-size: 1.1rem;
+           margin-bottom: 10px;
+           color: #343a40;
+        }
+         .result-card .card-text {
+            font-size: 0.9rem;
+             color: #6c757d;
+         }
+        .result-card .btn {
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+           .result-card .btn:hover {
+              opacity: 0.8;
+           }
+
+         #reminiUpload {
+              display: none;
+            }
+        .spinner-border {
+            margin: 20px auto;
+            display: block;
+          }
+    @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+    }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Downloader & Enhancer</h1>
-        
-        <div class="mb-3">
+        <h1 class="text-center mb-4 animate__animated animate__fadeInDown">Downloader by wanzofc</h1>
+
+         <div class="mb-3" data-aos="fade-up">
             <label for="typeSelect" class="form-label">Choose Type:</label>
             <select class="form-select" id="typeSelect">
                 <option value="tiktok">TikTok Video Downloader</option>
@@ -33,48 +126,54 @@
                 <option value="mediafire">Mediafire Downloader</option>
             </select>
         </div>
-        
-        <div class="mb-3" id="urlInputDiv">
+
+        <div class="mb-3" id="urlInputDiv" data-aos="fade-up">
              <label for="urlInput" class="form-label">URL / Query:</label>
              <input type="text" class="form-control" id="urlInput" placeholder="Enter URL or Query">
         </div>
 
-         <div class="mb-3" id="reminiDiv" style="display:none">
+         <div class="mb-3" id="reminiDiv" style="display:none" data-aos="fade-up">
               <label for="reminiUpload" class="form-label">Upload Image:</label>
               <input type="file" class="form-control" id="reminiUpload" accept="image/*">
          </div>
-        
-        <button class="btn btn-primary" id="downloadButton">Submit</button>
-        
+
+        <button class="btn btn-primary" id="downloadButton" data-aos="fade-up">Submit</button>
+
         <div class="row" id="results"></div>
     </div>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
+     AOS.init({
+          duration: 800,
+           once: true,
+           easing: 'ease-in-out',
+     });
+
         const downloadButton = document.getElementById('downloadButton');
         const urlInputDiv = document.getElementById('urlInputDiv');
         const urlInput = document.getElementById('urlInput');
         const typeSelect = document.getElementById('typeSelect');
-         const reminiDiv = document.getElementById('reminiDiv');
-         const reminiUpload = document.getElementById('reminiUpload');
+        const reminiDiv = document.getElementById('reminiDiv');
+        const reminiUpload = document.getElementById('reminiUpload');
         const resultsDiv = document.getElementById('results');
-          let selectedFile;
+        let selectedFile;
 
-         reminiUpload.addEventListener('change', function (e){
+        reminiUpload.addEventListener('change', function (e){
             selectedFile = e.target.files[0]
-         })
-       typeSelect.addEventListener('change', function(){
+        })
+        typeSelect.addEventListener('change', function(){
             const selectedType = typeSelect.value;
-             if (selectedType === 'remini') {
+            if (selectedType === 'remini') {
                 urlInputDiv.style.display = 'none';
                 reminiDiv.style.display = 'block'
             } else {
-                 urlInputDiv.style.display = 'block';
-                 reminiDiv.style.display = 'none'
+                urlInputDiv.style.display = 'block';
+                reminiDiv.style.display = 'none'
             }
-         })
+        })
 
 
         downloadButton.addEventListener('click', async () => {
@@ -82,7 +181,7 @@
             const type = typeSelect.value;
            resultsDiv.innerHTML = '<div class="spinner-border text-primary" role="status"> <span class="visually-hidden">Loading...</span></div>';
 
-           try {
+            try {
                 let response;
                 if(type === 'tiktok'){
                     response = await fetch('/tiktok', {
@@ -93,222 +192,272 @@
                         body: JSON.stringify({ text: url })
                     });
 
-                      if (!response.ok) {
+                    if (!response.ok) {
                         const errorData = await response.json();
-                          resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                            Error: ${errorData.message || response.statusText}
-                            </div>`;
+                        Swal.fire({
+                           icon: 'error',
+                            title: 'Oops...',
+                            text: `Error: ${errorData.message || response.statusText}`,
+                            confirmButtonColor: '#007bff',
+                        })
+                        resultsDiv.innerHTML = '';
                            return;
                     }
-                         const data = await response.json();
-                         if(data.status === false){
-                           resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                           Error: ${data.message}
-                           </div>`;
-                             return;
-                         }
-                            resultsDiv.innerHTML =`
-                              <div class="col-md-6">
+                    const data = await response.json();
+                    if(data.status === false){
+                        Swal.fire({
+                           icon: 'error',
+                             title: 'Oops...',
+                              text: `Error: ${data.message}`,
+                               confirmButtonColor: '#007bff',
+                        })
+                         resultsDiv.innerHTML = '';
+                        return;
+                    }
+                    resultsDiv.innerHTML =`
+                            <div class="col-md-6" data-aos="fade-up">
                                 <div class="card result-card">
                                    <img src="${data.video_thumb}" alt="Video Thumbnail" class="card-img-top">
                                    <div class="card-body">
-                                        <a href="${data.video_url}" class="btn btn-success" download>Download Video</a>
-                                         <a href="${data.audio_url}" class="btn btn-success" download>Download Audio</a>
+                                        <a href="${data.video_url}" class="btn btn-success" download><i class="fas fa-download"></i> Download Video</a>
+                                         <a href="${data.audio_url}" class="btn btn-success" download><i class="fas fa-music"></i> Download Audio</a>
                                     </div>
                                  </div>
                             </div>`;
                 }
                 else if (type === 'pinterest') {
                     response = await fetch(`/pinterest?query=${encodeURIComponent(url)}`);
-                       if (!response.ok) {
-                        const errorData = await response.json();
-                          resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                            Error: ${errorData.message || response.statusText}
-                            </div>`;
+                    if (!response.ok) {
+                       const errorData = await response.json();
+                         Swal.fire({
+                           icon: 'error',
+                             title: 'Oops...',
+                                text: `Error: ${errorData.message || response.statusText}`,
+                                confirmButtonColor: '#007bff',
+                        })
+                          resultsDiv.innerHTML = '';
                            return;
-                       }
+                    }
                     const data = await response.json();
-                        if(data.length === 0){
-                        resultsDiv.innerHTML = `<div class="alert alert-warning" role="alert">
-                         No Image Found
-                        </div>`
-                        return
+                    if(data.length === 0){
+                         Swal.fire({
+                           icon: 'warning',
+                           title: 'No Image Found',
+                               confirmButtonColor: '#007bff',
+                           })
+                           resultsDiv.innerHTML = '';
+                       return
                     }
                     resultsDiv.innerHTML = '';
                     data.forEach(imageUrl => {
                         resultsDiv.innerHTML += `
-                            <div class="col-md-3">
+                            <div class="col-md-3" data-aos="fade-up">
                                 <div class="card result-card">
                                     <img src="${imageUrl}" alt="Pinterest Image" class="card-img-top">
                                     <div class="card-body">
-                                        <a href="${imageUrl}" class="btn btn-success" download>Download</a>
+                                        <a href="${imageUrl}" class="btn btn-success" download><i class="fas fa-download"></i> Download</a>
                                     </div>
                                 </div>
                             </div>
                         `;
                     });
                 }
-                 else if (type === 'pinterest2') {
+                else if (type === 'pinterest2') {
                     response = await fetch(`/pinterest2?query=${encodeURIComponent(url)}`);
-                      if (!response.ok) {
+                    if (!response.ok) {
                         const errorData = await response.json();
-                          resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                            Error: ${errorData.message || response.statusText}
-                            </div>`;
+                           Swal.fire({
+                           icon: 'error',
+                             title: 'Oops...',
+                              text: `Error: ${errorData.message || response.statusText}`,
+                               confirmButtonColor: '#007bff',
+                           })
+                         resultsDiv.innerHTML = '';
                            return;
-                     }
-                    const data = await response.json();
-                       if(data.length === 0){
-                        resultsDiv.innerHTML = `<div class="alert alert-warning" role="alert">
-                         No Image Found
-                        </div>`
-                           return
                     }
-                       resultsDiv.innerHTML = '';
-                      data.forEach(item => {
-                          resultsDiv.innerHTML += `
-                            <div class="col-md-4">
+                    const data = await response.json();
+                    if(data.length === 0){
+                         Swal.fire({
+                           icon: 'warning',
+                           title: 'No Image Found',
+                               confirmButtonColor: '#007bff',
+                           })
+                           resultsDiv.innerHTML = '';
+                        return
+                    }
+                    resultsDiv.innerHTML = '';
+                    data.forEach(item => {
+                        resultsDiv.innerHTML += `
+                            <div class="col-md-4" data-aos="fade-up">
                                 <div class="card result-card">
                                     <img src="${item.images_url}" alt="${item.grid_title}" class="card-img-top">
                                     <div class="card-body">
                                         <h5 class="card-title">${item.grid_title}</h5>
                                          <p class="card-text">Created at: ${item.created_at}</p>
-                                        <a href="${item.link}" target="_blank" class="btn btn-primary">View on Pinterest</a>
-                                         <a href="${item.images_url}" class="btn btn-success" download>Download</a>
+                                        <a href="${item.link}" target="_blank" class="btn btn-primary"><i class="fas fa-eye"></i> View on Pinterest</a>
+                                         <a href="${item.images_url}" class="btn btn-success" download><i class="fas fa-download"></i> Download</a>
                                     </div>
                                 </div>
                             </div>
                         `;
                     });
                 }
-                  else if (type === 'mediafire') {
-                      response = await fetch(`/mediafire?query=${encodeURIComponent(url)}`);
-                      if (!response.ok) {
-                         const errorData = await response.json();
-                           resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                             Error: ${errorData.message || response.statusText}
-                             </div>`;
-                             return;
-                       }
-                     const data = await response.json();
+                else if (type === 'mediafire') {
+                    response = await fetch(`/mediafire?query=${encodeURIComponent(url)}`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        Swal.fire({
+                            icon: 'error',
+                             title: 'Oops...',
+                              text: `Error: ${errorData.message || response.statusText}`,
+                               confirmButtonColor: '#007bff',
+                         })
+                       resultsDiv.innerHTML = '';
+                        return;
+                    }
+                    const data = await response.json();
                     resultsDiv.innerHTML = `
-                         <div class="col-md-6">
+                         <div class="col-md-6" data-aos="fade-up">
                             <div class="card result-card">
                              <div class="card-body">
                              <h5 class="card-title">${data.judul}</h5>
                               <p class="card-text">Size: ${data.size}</p>
                                <p class="card-text">Upload Date: ${data.upload_date}</p>
                                 <p class="card-text">Mime Type: ${data.mime}</p>
-                               <a href="${data.link}" class="btn btn-success" download>Download</a>
+                               <a href="${data.link}" class="btn btn-success" download><i class="fas fa-download"></i> Download</a>
                               </div>
                           </div>
                          </div>`;
                 }
-                    else if (type === 'igdl') {
-                       response = await fetch(`/igdl?query=${encodeURIComponent(url)}`);
-                        if (!response.ok) {
-                           const errorData = await response.json();
-                            resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                              Error: ${errorData.message || response.statusText}
-                             </div>`;
-                                  return;
-                       }
+                else if (type === 'igdl') {
+                    response = await fetch(`/igdl?query=${encodeURIComponent(url)}`);
+                    if (!response.ok) {
+                         const errorData = await response.json();
+                          Swal.fire({
+                            icon: 'error',
+                              title: 'Oops...',
+                             text: `Error: ${errorData.message || response.statusText}`,
+                             confirmButtonColor: '#007bff',
+                         })
+                       resultsDiv.innerHTML = '';
+                           return;
+                    }
 
-                         const data = await response.json();
-                            if(data.status === false)
-                           {
-                             resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                                  Error: ${data.message}
-                            </div>`;
-                            return;
-                           }
-                             resultsDiv.innerHTML = '';
-                           data.data.forEach(item => {
-                            if(item.type === "image")
-                            {
-                                  resultsDiv.innerHTML += `
-                                <div class="col-md-3">
+                    const data = await response.json();
+                    if(data.status === false)
+                    {
+                           Swal.fire({
+                              icon: 'error',
+                               title: 'Oops...',
+                                text: `Error: ${data.message}`,
+                                 confirmButtonColor: '#007bff',
+                           })
+                          resultsDiv.innerHTML = '';
+                        return;
+                    }
+                    resultsDiv.innerHTML = '';
+                    data.data.forEach(item => {
+                        if(item.type === "image")
+                        {
+                            resultsDiv.innerHTML += `
+                                <div class="col-md-3" data-aos="fade-up">
                                     <div class="card result-card">
                                          <img src="${item.url}" alt="ig" class="card-img-top">
                                           <div class="card-body">
-                                               <a href="${item.url}" class="btn btn-success" download>Download</a>
+                                               <a href="${item.url}" class="btn btn-success" download><i class="fas fa-download"></i> Download</a>
                                           </div>
                                    </div>
                                 </div>`
-                            } else if (item.type === 'video')
-                               {
-                                 resultsDiv.innerHTML +=`
-                                   <div class="col-md-6">
+                        } else if (item.type === 'video')
+                        {
+                            resultsDiv.innerHTML +=`
+                                   <div class="col-md-6" data-aos="fade-up">
                                     <div class="card result-card">
                                       <video controls src="${item.url}" class="card-img-top"></video>
                                          <div class="card-body">
-                                               <a href="${item.url}" class="btn btn-success" download>Download</a>
+                                               <a href="${item.url}" class="btn btn-success" download><i class="fas fa-download"></i> Download</a>
                                          </div>
                                     </div>
                                 </div>`
-                               }
-                                  });
-                 }
-                    else if (type === 'remini') {
-                         resultsDiv.innerHTML = '<div class="alert alert-info" role="alert">Remini process, please wait...</div>';
-                       if(!selectedFile){
-                          resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                          Error: Please upload an image!
-                          </div>`
+                        }
+                    });
+                }
+                else if (type === 'remini') {
+                    resultsDiv.innerHTML = '<div class="alert alert-info" role="alert">Remini process, please wait...</div>';
+                    if(!selectedFile){
+                            Swal.fire({
+                            icon: 'error',
+                             title: 'Oops...',
+                              text: `Error: Please upload an image!`,
+                               confirmButtonColor: '#007bff',
+                            })
+                          resultsDiv.innerHTML = '';
                            return
-                       }
-                        const reader = new FileReader()
-                            reader.readAsDataURL(selectedFile)
-                            reader.onload = async () => {
-                            const base64Image = reader.result;
-                            try{
-                                   const response = await fetch(`/remini`, {
-                                       method: 'POST',
-                                      headers: {
-                                         'Content-Type': 'application/json'
-                                      },
-                                   body: JSON.stringify({
-                                        image: base64Image
-                                     })
+                    }
+                    const reader = new FileReader()
+                    reader.readAsDataURL(selectedFile)
+                    reader.onload = async () => {
+                        const base64Image = reader.result;
+                        try{
+                            const response = await fetch(`/remini`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    image: base64Image
+                                })
                             });
 
                             if (response.ok) {
                                 const blob = await response.blob();
                                 const imageUrl = URL.createObjectURL(blob);
-                               resultsDiv.innerHTML = `
-                               <div class="col-md-6">
+                                resultsDiv.innerHTML = `
+                               <div class="col-md-6" data-aos="fade-up">
                                    <div class="card result-card">
                                     <img src="${imageUrl}" alt="Remini Image" class="card-img-top">
                                     <div class="card-body">
-                                         <a href="${imageUrl}" class="btn btn-success" download>Download</a>
+                                         <a href="${imageUrl}" class="btn btn-success" download><i class="fas fa-download"></i> Download</a>
                                      </div>
                                   </div>
                                </div>
                             `
                             } else {
                                  const errorData = await response.json();
-                                   resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                                    Error: ${errorData.message || response.statusText}
-                                    </div>`;
+                                   Swal.fire({
+                                       icon: 'error',
+                                        title: 'Oops...',
+                                         text: `Error: ${errorData.message || response.statusText}`,
+                                         confirmButtonColor: '#007bff',
+                                    })
+                                    resultsDiv.innerHTML = '';
 
                                 }
-                                }catch(error){
-                                     resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                                        Error: ${error.message || 'Something went wrong during Remini process'}
-                                    </div>`;
-                                }
-
+                        }catch(error){
+                             Swal.fire({
+                                       icon: 'error',
+                                        title: 'Oops...',
+                                         text: `Error: ${error.message || 'Something went wrong during Remini process'}`,
+                                          confirmButtonColor: '#007bff',
+                                    })
+                                    resultsDiv.innerHTML = '';
                         }
-
 
                     }
 
+
+                }
+
             } catch (error) {
-               resultsDiv.innerHTML = `<div class="alert alert-danger" role="alert">
-                Error: ${error.message || 'Something went wrong'}
-                </div>`;
+                Swal.fire({
+                   icon: 'error',
+                     title: 'Oops...',
+                      text: `Error: ${error.message || 'Something went wrong'}`,
+                        confirmButtonColor: '#007bff',
+                 })
+              resultsDiv.innerHTML = '';
             }
         });
     </script>
 </body>
-           </html>
+</html>
