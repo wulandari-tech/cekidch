@@ -11,7 +11,7 @@ const upload = multer({ dest: 'uploads/' }); // Folder temporary untuk menyimpan
 // Middleware untuk serve index.html
 app.get('/', (req, res) => {
     // Ganti dengan path absolut lokasi index.html
-    const indexPath = path.resolve(__dirname, '../index.html'); 
+    const indexPath = path.resolve(__dirname, 'index.html'); 
     res.sendFile(indexPath);
 });
 
