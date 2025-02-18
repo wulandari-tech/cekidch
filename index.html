@@ -3,85 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title> Chat Room</title>
-    <!-- Bootstrap CSS -->
+    <title>anonim private chat</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body, html {
-            height: 100%; /* Make sure the body and html take up full height */
+            height: 100%;
             margin: 0;
-            background-color: #f8f9fa;
+            background: linear-gradient(to bottom, #040D21, #0A1931, #1E2A4A); /* Deep space gradient */
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; 
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise"/><feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/></filter></defs><rect width="100%" height="100%" filter="url(#noise)" fill="transparent"/></svg>');
+            opacity: 0.2; /* Subtle star effect */
+            z-index: -1;
+            pointer-events: none;
         }
 
         .chat-container {
             display: flex;
             flex-direction: column;
-            height: 100%; /* Chat container takes up full height */
+            height: 100%;
         }
 
         .chat-header {
-            background-color: #007bff;
+            background-color: rgba(55, 0, 179, 0.8); /* Translucent purple header */
             color: white;
             text-align: center;
             padding: 20px;
             font-size: 1.5rem;
-            flex-shrink: 0; /* Prevent header from shrinking */
+            flex-shrink: 0;
+            backdrop-filter: blur(10px); /* Frosted glass effect */
         }
 
         .chat-messages {
-            flex-grow: 1; /* Chat messages take up remaining space */
+            flex-grow: 1;
             overflow-y: scroll;
             padding: 15px;
         }
 
         .message {
-            background-color: #e9ecef;
+            background-color: rgba(66, 66, 66, 0.7); /* Translucent dark message */
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 10px;
             word-break: break-word;
+            backdrop-filter: blur(5px);
         }
 
         .input-area {
             padding: 15px;
-            background-color: #f1f3f5;
-            flex-shrink: 0; /* Prevent input area from shrinking */
+            background-color: rgba(33, 33, 33, 0.8); /* Translucent dark input area */
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
         }
 
         #message-input {
             border-radius: 5px;
+            background-color: rgba(48, 48, 48, 0.5); /* Translucent dark input */
+            color: #fff;
+            border: 1px solid rgba(66, 66, 66, 0.5);
+        }
+
+        #message-input::placeholder {
+            color: #ddd; /* Light placeholder text */
         }
 
         #send-button {
             border-radius: 5px;
+            background-color: #6200EA; /* Glowing purple button */
+            border: none;
+            transition: background-color 0.3s ease;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .chat-header {
-                font-size: 1.2rem; /* Smaller header on small screens */
-                padding: 15px;
-            }
+        #send-button:hover {
+            background-color: #7B1FA2; /* Darker purple on hover */
+        }
 
-            .chat-messages {
-                padding: 10px; /* Less padding on small screens */
-            }
+        .typing-indicator {
+            font-style: italic;
+            color: #9E9E9E;
+        }
 
-            .input-area {
-                padding: 10px; /* Less padding on small screens */
-            }
+        /* Navbar Styles */
+        .navbar {
+            background-color: rgba(48, 63, 159, 0.7); /* Translucent dark blue navbar */
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+            transition: color 0.3s ease;
+            display: flex; /* Use flexbox for vertical alignment */
+            align-items: center; /* Vertically center the logo and text */
+        }
+
+        .navbar-brand:hover {
+            color: #9FA8DA !important;
+        }
+
+        .navbar-toggler-icon {
+            background-color: white;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            background-color: rgba(33, 33, 33, 0.9); /* Translucent dark modal */
+            color: white;
+            border: 1px solid rgba(66, 66, 66, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-header, .modal-footer {
+            border-color: rgba(66, 66, 66, 0.5);
+        }
+
+        .form-control {
+            background-color: rgba(48, 48, 48, 0.5);
+            color: white;
+            border: 1px solid rgba(66, 66, 66, 0.5);
+        }
+
+        .form-control::placeholder {
+            color: #ddd;
+        }
+
+        .nav-link {
+            color: white !important;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #9FA8DA !important;
+        }
+
+        /* Active Navbar Styles */
+        .navbar-brand .logo {
+            transition: transform 0.5s ease-in-out, color 0.3s ease;
+            display: inline-block;
+            margin-right: 8px; /* Space between logo and text */
+        }
+
+        .navbar-brand:hover .logo {
+            transform: rotate(360deg);
+            color: #B39DDB;
+        }
+
+        /* New Cool Logo */
+        .fa-meteor {
+            font-size: 1.5em; /* Adjust size */
+            color: #64B5F6; /* Light blue for meteor */
+            text-shadow: 0 0 10px #00BCD4; /* Glowing effect */
         }
     </style>
 </head>
 <body>
 
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-meteor logo"></i> anonim privaye chat
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="modal" data-target="#profileModal">
+                        <i class="fas fa-user-astronaut"></i> Profile
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
     <div class="container-fluid chat-container">
         <div class="chat-header">
-             Chat Room
+            anonim private chat
         </div>
 
         <div class="chat-messages" id="messages">
             <!-- Messages will be displayed here -->
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <!-- Typing indicator will be displayed here -->
         </div>
 
         <div class="input-area">
@@ -94,20 +210,76 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileModalLabel">Edit Profile</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="profileName">Name</label>
+                        <input type="text" class="form-control" id="profileName" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileImage">Profile Picture</label>
+                        <input type="file" class="form-control-file" id="profileImage">
+                    </div>
+                    <img id="profilePreview" src="" alt="Profile Preview" style="max-width: 100px; max-height: 100px; margin-top: 10px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveProfile">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- GSAP Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
         const messagesDiv = document.getElementById('messages');
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        let typingTimeout;
+        let username = "Guest"; // Default username
+        let profileImageBase64 = ""; // Default profile image
+
+        // Function to show typing indicator
+        function showTypingIndicator() {
+            typingIndicator.textContent = `${username} is typing...`;
+            typingIndicator.style.display = "block";
+
+            // Clear any existing timeout
+            clearTimeout(typingTimeout);
+
+            // Set a timeout to hide the indicator after 1.5 seconds
+            typingTimeout = setTimeout(() => {
+                typingIndicator.style.display = "none";
+            }, 1500);
+        }
+
+        // Add input event listener to message input
+        messageInput.addEventListener('input', showTypingIndicator);
 
         // SSE Connection
         const eventSource = new EventSource('/events');
 
         eventSource.onmessage = (event) => {
-            const message = event.data;
-            displayMessage(message);
+            const messageData = JSON.parse(event.data);
+            displayMessage(messageData.message, messageData.username, messageData.profileImageBase64);
         };
 
         eventSource.onerror = (error) => {
@@ -131,7 +303,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ message: message, username: username, profileImageBase64: profileImageBase64 }) // Send username
                 });
 
                 if (!response.ok) {
@@ -143,10 +315,15 @@
         }
 
         // Display Message with GSAP animation
-        function displayMessage(message) {
+        function displayMessage(message, username, profileImageBase64) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
-            messageDiv.textContent = message;
+
+            // Display the message with username and profile image
+            messageDiv.innerHTML = `
+                <img src="${profileImageBase64 ? profileImageBase64 : 'https://via.placeholder.com/50'}" alt="Profile" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;">
+                <b>${username}:</b> ${message}
+            `;
 
             // Animate the message entrance
             gsap.fromTo(messageDiv,
@@ -157,11 +334,67 @@
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll
         }
+
+        // Profile Modal Logic
+        const profileNameInput = document.getElementById('profileName');
+        const profileImageInput = document.getElementById('profileImage');
+        const profilePreview = document.getElementById('profilePreview');
+        const saveProfileButton = document.getElementById('saveProfile');
+
+        // Load profile information when modal is opened
+        $('#profileModal').on('show.bs.modal', function (e) {
+            profileNameInput.value = username;
+            profilePreview.src = profileImageBase64 ? profileImageBase64 : "";
+        });
+
+        // Preview image before upload
+        profileImageInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    profilePreview.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Save profile information
+        saveProfileButton.addEventListener('click', function () {
+            // Get values from modal
+            const newUsername = profileNameInput.value || "Guest";
+            const newProfileImageBase64 = profilePreview.src;
+
+            // Send update request to the server
+            updateProfile(newUsername, newProfileImageBase64);
+
+            // Close modal
+            $('#profileModal').modal('hide');
+        });
+
+        // Function to send profile update to server
+        async function updateProfile(newUsername, newProfileImageBase64) {
+            try {
+                const response = await fetch('/update-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: newUsername, profileImageBase64: newProfileImageBase64 })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update profile');
+                }
+
+                const data = await response.json();
+                username = data.username;
+                profileImageBase64 = data.profileImageBase64;
+            } catch (error) {
+                console.error('Error updating profile:', error);
+            }
+        }
     </script>
 
-    <!-- Bootstrap JS (Optional, but needed for some features) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
