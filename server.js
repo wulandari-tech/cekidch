@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-
 const app = express();
 const server = http.createServer(app);
 
@@ -69,7 +68,7 @@ app.post('/send-message', (req, res) => {
     }
 });
 
-const port = 3000;
+const port = 8080;
 server.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });
