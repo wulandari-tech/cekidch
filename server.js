@@ -2,16 +2,18 @@ const express = require('express');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+
 const app = express();
 const server = http.createServer(app);
 
-app.use(express.json()); // Middleware untuk parsing body JSON
-app.use(express.urlencoded({ extended: true })); // Middleware untuk parsing URL-encoded data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-let clients = []; // Array untuk menyimpan klien SSE
-let chatMessages = []; // Array untuk menyimpan pesan
+let clients = [];
+let chatMessages = [];
+let globalUsername = "Guest";
+let globalProfileImageBase64 = "";
 
-// Routing untuk index.html
 app.get('/', (req, res) => {
     fs.readFile('index.html', (err, data) => {
         if (err) {
@@ -23,7 +25,6 @@ app.get('/', (req, res) => {
     });
 });
 
-// Endpoint untuk SSE
 app.get('/events', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -37,9 +38,8 @@ app.get('/events', (req, res) => {
     };
     clients.push(newClient);
 
-    // Kirim pesan-pesan yang sudah ada saat klien terhubung
     chatMessages.forEach(message => {
-        newClient.res.write(`data: ${message}\n\n`);
+        newClient.res.write(`data: ${JSON.stringify(message)}\n\n`);
     });
 
     req.on('close', () => {
@@ -48,24 +48,30 @@ app.get('/events', (req, res) => {
     });
 });
 
-// Endpoint untuk menerima pesan dari client
 app.post('/send-message', (req, res) => {
-    const message = req.body.message;
+    const { message, username, profileImageBase64 } = req.body;
     if (message) {
-        chatMessages.push(message); // Simpan pesan
-        // Batasi jumlah pesan yang disimpan (opsional)
+        const messageData = { message, username: globalUsername, profileImageBase64: globalProfileImageBase64 };
+        chatMessages.push(messageData);
+
         if (chatMessages.length > 20) {
-            chatMessages.shift(); // Hapus pesan paling lama
+            chatMessages.shift();
         }
 
-        // Kirim pesan ke semua klien SSE
         clients.forEach(client => {
-            client.res.write(`data: ${message}\n\n`);
+            client.res.write(`data: ${JSON.stringify(messageData)}\n\n`);
         });
         res.status(200).send('Message sent');
     } else {
         res.status(400).send('Message is required');
     }
+});
+
+app.post('/update-profile', (req, res) => {
+    const { username, profileImageBase64 } = req.body;
+    globalUsername = username || "Guest";
+    globalProfileImageBase64 = profileImageBase64 || "";
+    res.json({ username: globalUsername, profileImageBase64: globalProfileImageBase64 });
 });
 
 const port = 8080;
