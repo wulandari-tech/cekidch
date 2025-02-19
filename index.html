@@ -45,11 +45,13 @@
             backdrop-filter: blur(10px);
         }
 
-        .chat-messages {
-            flex-grow: 1;
-            overflow-y: scroll;
-            padding: 15px;
-        }
+       
+.chat-messages {
+  overflow-y: auto;
+  padding: 10px;
+  height: calc(100vh - 150px); /* Sesuaikan nilai ini dengan tinggi header dan input */
+}
+
 
         .message {
             padding: 10px;
