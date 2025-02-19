@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>anonim private chat</title>
+    <title>Anonim Private Chat</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body, html {
             height: 100%;
@@ -13,8 +13,7 @@
             background: linear-gradient(to bottom, #040D21, #0A1931, #1E2A4A);
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        } /* Hapus overflow: hidden sementara */
-
+        }
         body::before {
             content: '';
             position: fixed;
@@ -27,13 +26,11 @@
             z-index: -1;
             pointer-events: none;
         }
-
         .chat-container {
             display: flex;
             flex-direction: column;
             height: 100%;
         }
-
         .chat-header {
             background-color: rgba(55, 0, 179, 0.8);
             color: white;
@@ -43,14 +40,11 @@
             flex-shrink: 0;
             backdrop-filter: blur(10px);
         }
-
         .chat-messages {
             overflow-y: auto;
             padding: 10px;
-            height: calc(100vh - 250px); /* Penyesuaian tinggi yang lebih agresif */
+            height: calc(100vh - 250px);
         }
-
-
         .message {
             padding: 10px;
             border-radius: 5px;
@@ -59,19 +53,14 @@
             backdrop-filter: blur(5px);
             max-width: 80%;
         }
-
         .message.sent {
             background-color: rgba(41, 182, 246, 0.7);
             align-self: flex-end;
         }
-
         .message.received {
             background-color: rgba(156, 39, 176, 0.7);
             align-self: flex-start;
         }
-
-        /* Improved Input Area Styles */
-
         .input-area {
             position: fixed;
             bottom: 0;
@@ -82,7 +71,6 @@
             display: flex;
             align-items: center;
         }
-
         #message-input {
             flex-grow: 1;
             margin-right: 10px;
@@ -92,34 +80,27 @@
             color: #fff;
             border: 1px solid rgba(66, 66, 66, 0.5);
         }
-
         #message-input::placeholder {
             color: #ddd;
         }
-
         #send-button {
-            border-radius: 25px; /* Match input style */
+            border-radius: 25px;
             background-color: #6200EA;
             border: none;
             transition: background-color 0.3s ease;
-            padding: 10px 20px; /* Adjust padding */
+            padding: 10px 20px;
         }
-
         #send-button:hover {
             background-color: #7B1FA2;
         }
-
         .typing-indicator {
             font-style: italic;
             color: #9E9E9E;
         }
-
-        /* Navbar Styles */
         .navbar {
             background-color: rgba(48, 63, 159, 0.7);
             backdrop-filter: blur(10px);
         }
-
         .navbar-brand {
             color: white !important;
             font-weight: bold;
@@ -127,66 +108,50 @@
             display: flex;
             align-items: center;
         }
-
         .navbar-brand:hover {
             color: #9FA8DA !important;
         }
-
         .navbar-toggler-icon {
             background-color: white;
         }
-
-        /* Modal Styles */
         .modal-content {
             background-color: rgba(33, 33, 33, 0.9);
             color: white;
             border: 1px solid rgba(66, 66, 66, 0.5);
             backdrop-filter: blur(10px);
         }
-
         .modal-header, .modal-footer {
             border-color: rgba(66, 66, 66, 0.5);
         }
-
         .form-control {
             background-color: rgba(48, 48, 48, 0.5);
             color: white;
             border: 1px solid rgba(66, 66, 66, 0.5);
         }
-
         .form-control::placeholder {
             color: #ddd;
         }
-
         .nav-link {
             color: white !important;
             transition: color 0.3s ease;
         }
-
         .nav-link:hover {
             color: #9FA8DA !important;
         }
-
-        /* Active Navbar Styles */
         .navbar-brand .logo {
             transition: transform 0.5s ease-in-out, color 0.3s ease;
             display: inline-block;
             margin-right: 8px;
         }
-
         .navbar-brand:hover .logo {
             transform: rotate(360deg);
             color: #B39DDB;
         }
-
-        /* New Cool Logo */
         .fa-meteor {
             font-size: 1.5em;
             color: #64B5F6;
             text-shadow: 0 0 10px #00BCD4;
         }
-
-        /* Online Indicator */
         .online-indicator {
             width: 10px;
             height: 10px;
@@ -195,12 +160,9 @@
             display: inline-block;
             margin-left: 5px;
         }
-
-        /* Room List Styles */
         #roomList {
             color: black;
         }
-
         #roomList a {
             color: #81D4FA;
             display: block;
@@ -208,13 +170,10 @@
             border-radius: 5px;
             transition: background-color 0.3s ease;
         }
-
         #roomList a:hover {
             background-color: rgba(129, 212, 250, 0.2);
             text-decoration: none;
         }
-
-        /* Media Queries for Responsiveness */
         @media (max-width: 768px) {
             .chat-header {
                 font-size: 1.2rem;
@@ -224,13 +183,11 @@
 </head>
 <body>
 
-    <!-- Audio Element -->
     <audio id="backgroundMusic" loop autoplay>
         <source src="https://files.catbox.moe/irf66d.mp3" type="audio/mp3">
         Your browser does not support the audio element.
     </audio>
 
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <a class="navbar-brand" href="#">
             <i class="fas fa-meteor logo"></i> anonim        </a>
@@ -255,7 +212,7 @@
 
     <div class="container-fluid chat-container">
         <div class="chat-header">
-            anonim private chat
+            Anonim Private Chat
         </div>
 
         <div class="row">
@@ -275,12 +232,12 @@
             </div>
         </div>
 
-        <!-- Input Area (Moved Below Chat Messages) -->
         <div class="input-area">
             <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
             <button class="btn btn-primary" type="button" id="send-button">Send</button>
         </div>
     </div>
+
     <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -294,6 +251,7 @@
                     <div class="form-group">
                         <label for="profileName">Name</label>
                         <input type="text" class="form-control" id="profileName" placeholder="Enter your name">
+                        <small id="nameError" class="form-text text-danger" style="display: none;">This name is already taken.</small>
                     </div>
                     <div class="form-group">
                         <label for="profileImage">Profile Picture</label>
@@ -309,6 +267,7 @@
             </div>
         </div>
     </div>
+
     <div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -329,7 +288,6 @@
         </div>
     </div>
 
-    <!-- Create Room Modal -->
     <div class="modal fade" id="createRoomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -352,6 +310,7 @@
             </div>
         </div>
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
@@ -370,16 +329,17 @@
         const createRoomNameInput = document.getElementById('roomName');
         const createRoomButton = document.getElementById('createRoom');
         const audio = document.getElementById('backgroundMusic');
+        const nameError = document.getElementById('nameError');
 
         let typingTimeout;
-        let username = "Guest";
+        let username = "Guest"; // Nama default
         let profileImageBase64 = "";
-        let currentRoom = "General"; // Default room
+        let currentRoom = "General";
 
-        // Load initial data
+        const takenNames = ["Admin", "System", "Guest1", "Guest2"];
+
         loadData();
 
-        // Function to load data from server
         async function loadData() {
             try {
                 const response = await fetch('/load-data');
@@ -387,15 +347,14 @@
                     throw new Error('Failed to load data');
                 }
                 const data = await response.json();
-                username = data.username;
-                profileImageBase64 = data.profileImageBase64;
+                // username = data.username;  // Server-side username (jika ada)
+                profileImageBase64 = data.profileImageBase64; // Ambil data lain
                 displayRooms(data.rooms);
             } catch (error) {
                 console.error('Error loading data:', error);
             }
         }
 
-        // Function to show typing indicator
         function showTypingIndicator() {
             typingIndicator.textContent = `${username} is typing...`;
             typingIndicator.style.display = "block";
@@ -406,23 +365,18 @@
             }, 1500);
         }
 
-        // Listen for typing events
         messageInput.addEventListener('input', showTypingIndicator);
 
-        // SSE Connection
         const eventSource = new EventSource('/events');
-
         eventSource.onmessage = (event) => {
             const messageData = JSON.parse(event.data);
             displayMessage(messageData.message, messageData.username, messageData.profileImageBase64, messageData.room);
         };
-
         eventSource.onerror = (error) => {
             console.error('SSE error:', error);
             eventSource.close();
         };
 
-        // Send Message
         sendButton.addEventListener('click', () => {
             const message = messageInput.value.trim();
             if (message) {
@@ -449,35 +403,30 @@
             }
         }
 
-        // Display Message
         function displayMessage(message, username, profileImageBase64, room) {
-            if (room !== currentRoom) return; // Only display messages for the current room
+            if (room !== currentRoom) return;
 
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
-            messageDiv.classList.add(username === window.username ? 'sent' : 'received'); // Add sent/received class
+            messageDiv.classList.add(username === window.username ? 'sent' : 'received');
 
             messageDiv.innerHTML = `
                 <img src="${profileImageBase64 ? profileImageBase64 : 'https://via.placeholder.com/50'}" alt="Profile" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;">
                 <b>${username}:</b> ${message}
             `;
 
-            gsap.fromTo(messageDiv,
-                { opacity: 0, y: -20 },
-                { opacity: 1, y: 0, duration: 0.3 }
-            );
+            gsap.fromTo(messageDiv, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.3 });
 
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Profile Modal Logic
         $('#profileModal').on('show.bs.modal', function (e) {
             profileNameInput.value = username;
             profilePreview.src = profileImageBase64 ? profileImageBase64 : "";
+            nameError.style.display = "none";
         });
 
-        // Preview image before upload
         profileImageInput.addEventListener('change', function () {
             const file = this.files[0];
             if (file) {
@@ -489,10 +438,17 @@
             }
         });
 
-        // Save profile information
         saveProfileButton.addEventListener('click', function () {
             const newUsername = profileNameInput.value || "Guest";
             const newProfileImageBase64 = profilePreview.src;
+
+            // Simulasi pemeriksaan nama yang sudah ada
+            if (takenNames.includes(newUsername)) {
+                nameError.style.display = "block";
+                return; // Jangan simpan jika nama sudah ada
+            } else {
+                nameError.style.display = "none"; // Sembunyikan pesan kesalahan
+            }
 
             updateProfile(newUsername, newProfileImageBase64);
             $('#profileModal').modal('hide');
@@ -513,16 +469,14 @@
                 }
 
                 const data = await response.json();
-                username = data.username;
+                username = data.username; // Update username
                 profileImageBase64 = data.profileImageBase64;
-                window.username = username; // Update global username for new messages
+                window.username = username;
             } catch (error) {
                 console.error('Error updating profile:', error);
             }
         }
 
-        // Room Management
-        // Function to display available rooms
         function displayRooms(rooms) {
             roomListDiv.innerHTML = '';
             availableRoomsList.innerHTML = '';
@@ -533,7 +487,6 @@
                 roomLink.textContent = room.name;
                 roomLink.classList.add('list-group-item', 'list-group-item-action');
 
-                // Event listener to switch to the selected room
                 roomLink.addEventListener('click', function (e) {
                     e.preventDefault();
                     switchRoom(room.name);
@@ -548,14 +501,12 @@
             });
         }
 
-        // Function to switch rooms
         function switchRoom(roomName) {
             currentRoom = roomName;
-            messagesDiv.innerHTML = ''; // Clear old messages
+            messagesDiv.innerHTML = '';
             fetchMessagesForRoom(roomName);
         }
 
-        // Function to fetch messages for the selected room
         async function fetchMessagesForRoom(roomName) {
             try {
                 const response = await fetch(`/messages/${roomName}`);
@@ -571,7 +522,6 @@
             }
         }
 
-        // Create Room
         createRoomButton.addEventListener('click', async function () {
             const roomName = createRoomNameInput.value.trim();
             if (roomName) {
@@ -586,9 +536,9 @@
 
                     if (response.ok) {
                         const newRoom = await response.json();
-                        displayRooms(newRoom); // Assuming the response contains all rooms
+                        displayRooms(newRoom);
                         $('#createRoomModal').modal('hide');
-                        createRoomNameInput.value = ''; // Clear input
+                        createRoomNameInput.value = '';
                     } else {
                         console.error('Failed to create room:', response.statusText);
                     }
@@ -597,15 +547,15 @@
                 }
             }
         });
-        // Initial fetch to list chat rooms when the page loads
+
         async function fetchChatRooms() {
             try {
-                const response = await fetch('/chat-rooms'); // Replace with your server endpoint
+                const response = await fetch('/chat-rooms');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const rooms = await response.json();
-                displayRooms(rooms); // Call displayRooms with the fetched rooms
+                displayRooms(rooms);
             } catch (error) {
                 console.error('Error fetching chat rooms:', error);
             }
