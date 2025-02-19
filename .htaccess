@@ -1,0 +1,7 @@
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{REQUEST_METHOD} POST
+RewriteCond %{HTTP_REFERER} !^http(s)?://wanzofc-ai.biz.id [NC]
+RewriteRule \. - [F]
+</IfModule>
