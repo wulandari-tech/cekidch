@@ -71,24 +71,27 @@
         }
 
         /* Improved Input Area Styles */
-        .input-area {
-            padding: 15px;
-            background-color: rgba(33, 33, 33, 0.8);
-            flex-shrink: 0;
-            backdrop-filter: blur(10px);
-            display: flex; /* Use flexbox for input and send button */
-            align-items: center; /* Align vertically */
-        }
+       
+.input-area {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background-color: rgba(33, 33, 33, 0.8);
+  display: flex;
+  align-items: center;
+}
 
-        #message-input {
-            border-radius: 25px; /* More rounded corners */
-            background-color: rgba(48, 48, 48, 0.5);
-            color: #fff;
-            border: 1px solid rgba(66, 66, 66, 0.5);
-            padding: 10px 15px; /* Increase padding for better look */
-            flex-grow: 1; /* Take up available space */
-            margin-right: 10px; /* Space before send button */
-        }
+#message-input {
+  flex-grow: 1;
+  margin-right: 10px;
+  padding: 10px;
+  border-radius: 20px;
+  background-color: rgba(48, 48, 48, 0.5);
+  color: #fff;
+  border: 1px solid rgba(66, 66, 66, 0.5);
+}
 
         #message-input::placeholder {
             color: #ddd;
