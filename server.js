@@ -3,33 +3,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const security = require('./security');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const Joi = require('joi');
 
 const app = express();
+const server = http.createServer(app);
 
-// Aktifkan "trust proxy" SEBELUM inisialisasi rateLimit
-app.set('trust proxy', true);
-
-// 1. Rate Limiting:
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 menit
-  max: 100, // Batasi setiap IP ke 100 permintaan per windowMs
-  message: 'Terlalu banyak permintaan dari IP ini, coba lagi setelah 15 menit.',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// 2. Keamanan Header:
-app.use(helmet());
-
-// 4. Limit Payload Size:
-app.use(express.json({ limit: '100kb' }));
-app.use(express.urlencoded({ extended: true, limit: '100kb' }));
-
-// Menerapkan rate limit ke SEMUA route
-app.use(limiter);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const dbFilePath = path.join(__dirname, 'database.json');
 
@@ -72,8 +51,6 @@ let globalUsername = "Guest";
 let globalProfileImageBase64 = "";
 let clients = [];
 
-const server = http.createServer(app);
-
 app.get('/', (req, res) => {
   fs.readFile('index.html', (err, data) => {
     if (err) {
@@ -109,21 +86,7 @@ app.get('/events', (req, res) => {
   });
 });
 
-// Skema Validasi untuk /send-message
-const messageSchema = Joi.object({
-  message: Joi.string().min(1).max(500).required(),
-  username: Joi.string().min(3).max(50).required(),
-  profileImageBase64: Joi.string().allow(''), // Opsional, tapi validasi format jika ada
-  room: Joi.string().required()
-});
-
-app.post('/send-message', (req, res, next) => {
-  // 3. Sanitasi & Validasi Input:
-  const { error } = messageSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-
+app.post('/send-message', (req, res) => {
   let { message, username, profileImageBase64, room } = req.body;
   message = security.sanitizeString(message); // Sanitize message
 
@@ -194,13 +157,7 @@ app.get('/messages/:room', (req, res) => {
   res.json(roomMessages);
 });
 
-// 5. Timeouts:
-server.setTimeout(120000); // 120 detik (2 menit)
-
 const port = 8080;
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
-
-// 6. Logging & Monitoring (Implementasi terpisah)
-// 7. Firewall (Konfigurasi terpisah di server/cloud provider)
