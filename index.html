@@ -45,11 +45,10 @@
             backdrop-filter: blur(10px);
         }
 
-       
         .chat-messages {
-            overflow-y: auto; /* Aktifkan scrolling vertikal */
+            overflow-y: auto;
             padding: 10px;
-            flex-grow: 1; /* Biarkan area pesan tumbuh mengisi ruang yang tersisa */
+            height: calc(100vh - 150px); /* Sesuaikan nilai ini dengan tinggi header dan input */
         }
 
 
@@ -73,7 +72,7 @@
         }
 
         /* Improved Input Area Styles */
-       
+
         .input-area {
             position: fixed;
             bottom: 0;
@@ -257,11 +256,11 @@
 
     <div class="container-fluid chat-container">
         <div class="chat-header">
-      anonim private chat 
+            anonim private chat
         </div>
 
         <div class="row">
-            
+
             <div class="col-md-3">
                 <h4 style="color: #fff;">Chat Rooms</h4>
                 <div id="roomList">
@@ -277,7 +276,7 @@
             </div>
         </div>
 
-       <!-- Input Area (Moved Below Chat Messages) -->
+        <!-- Input Area (Moved Below Chat Messages) -->
         <div class="input-area">
             <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
             <button class="btn btn-primary" type="button" id="send-button">Send</button>
@@ -601,17 +600,17 @@
         });
         // Initial fetch to list chat rooms when the page loads
         async function fetchChatRooms() {
-          try {
-            const response = await fetch('/chat-rooms'); // Replace with your server endpoint
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+            try {
+                const response = await fetch('/chat-rooms'); // Replace with your server endpoint
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const rooms = await response.json();
+                displayRooms(rooms); // Call displayRooms with the fetched rooms
+            } catch (error) {
+                console.error('Error fetching chat rooms:', error);
             }
-            const rooms = await response.json();
-            displayRooms(rooms); // Call displayRooms with the fetched rooms
-          } catch (error) {
-            console.error('Error fetching chat rooms:', error);
-          }
-            }
+        }
         fetchChatRooms();
     </script>
 </body>
