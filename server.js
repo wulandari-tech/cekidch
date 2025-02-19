@@ -3,12 +3,32 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const security = require('./security');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const Joi = require('joi');
+const IPCIDR = require('ip-cidr'); // Import ip-cidr
 
 const app = express();
 const server = http.createServer(app);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// 1. Rate Limiting:
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 100, // Batasi setiap IP ke 100 permintaan per windowMs
+  message: 'Terlalu banyak permintaan dari IP ini, coba lagi setelah 15 menit.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// 2. Keamanan Header:
+app.use(helmet());
+
+// 4. Limit Payload Size:
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+
+// Menerapkan rate limit ke SEMUA route
+app.use(limiter);
 
 const dbFilePath = path.join(__dirname, 'database.json');
 
@@ -86,7 +106,21 @@ app.get('/events', (req, res) => {
   });
 });
 
-app.post('/send-message', (req, res) => {
+// Skema Validasi untuk /send-message
+const messageSchema = Joi.object({
+  message: Joi.string().min(1).max(500).required(),
+  username: Joi.string().min(3).max(50).required(),
+  profileImageBase64: Joi.string().allow(''), // Opsional, tapi validasi format jika ada
+  room: Joi.string().required()
+});
+
+app.post('/send-message', (req, res, next) => {
+  // 3. Sanitasi & Validasi Input:
+  const { error } = messageSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
   let { message, username, profileImageBase64, room } = req.body;
   message = security.sanitizeString(message); // Sanitize message
 
@@ -157,7 +191,69 @@ app.get('/messages/:room', (req, res) => {
   res.json(roomMessages);
 });
 
+// 5. Timeouts:
+server.setTimeout(120000); // 120 detik (2 menit)
+
+// **Middleware untuk Verifikasi Cloudflare IP (HATI-HATI PENGGUNAANNYA!)**
+// **LEBIH BAIK KONFIGURASI FIREWALL DI CLOUDFLARE**
+app.use((req, res, next) => {
+  const cfConnectingIp = req.headers['cf-connecting-ip'];
+
+  // **PERHATIAN: PERBARUI DAFTAR INI SECARA BERKALA DARI CLOUDFLARE!**
+  const cloudflareIps = [
+    '173.245.48.0/20',
+    '103.21.244.0/22',
+    '103.22.200.0/22',
+    '103.31.4.0/22',
+    '141.101.64.0/18',
+    '108.162.192.0/18',
+    '190.93.240.0/20',
+    '188.114.96.0/20',
+    '197.234.240.0/22',
+    '198.41.128.0/17',
+    '162.158.0.0/15',
+    '104.16.0.0/13',
+    '104.24.0.0/14',
+    '172.64.0.0/13',
+    '131.0.72.0/22',
+  ];
+
+  function isInRange(ip, cidr) {
+    try {
+      const cidrRange = new IPCIDR(cidr);
+      return cidrRange.contains(ip);
+    } catch (error) {
+      console.error(`Error parsing CIDR range ${cidr}:`, error);
+      return false;
+    }
+  }
+
+  let isCloudflareIp = false;
+  if (cfConnectingIp) {
+    for (const range of cloudflareIps) {
+      if (isInRange(cfConnectingIp, range)) {
+        isCloudflareIp = true;
+        break;
+      }
+    }
+  }
+
+  if (!isCloudflareIp) {
+    console.warn('Permintaan bukan dari Cloudflare. IP:', cfConnectingIp || req.ip);
+    //return res.status(403).send('Akses Dilarang'); // Aktifkan ini jika ingin memblokir
+  } else {
+    console.log('Permintaan dari Cloudflare. IP:', cfConnectingIp);
+  }
+
+  next(); // Lanjutkan ke route handler
+});
+// **AKHIR Middleware Cloudflare IP**
+
+
 const port = 8080;
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+
+// 6. Logging & Monitoring (Implementasi terpisah)
+// 7. Firewall (Konfigurasi terpisah di server/cloud provider)
