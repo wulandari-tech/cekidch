@@ -70,18 +70,24 @@
             align-self: flex-start;
         }
 
+        /* Improved Input Area Styles */
         .input-area {
             padding: 15px;
             background-color: rgba(33, 33, 33, 0.8);
             flex-shrink: 0;
             backdrop-filter: blur(10px);
+            display: flex; /* Use flexbox for input and send button */
+            align-items: center; /* Align vertically */
         }
 
         #message-input {
-            border-radius: 5px;
+            border-radius: 25px; /* More rounded corners */
             background-color: rgba(48, 48, 48, 0.5);
             color: #fff;
             border: 1px solid rgba(66, 66, 66, 0.5);
+            padding: 10px 15px; /* Increase padding for better look */
+            flex-grow: 1; /* Take up available space */
+            margin-right: 10px; /* Space before send button */
         }
 
         #message-input::placeholder {
@@ -89,10 +95,11 @@
         }
 
         #send-button {
-            border-radius: 5px;
+            border-radius: 25px; /* Match input style */
             background-color: #6200EA;
             border: none;
             transition: background-color 0.3s ease;
+            padding: 10px 20px; /* Adjust padding */
         }
 
         #send-button:hover {
@@ -188,7 +195,7 @@
 
         /* Room List Styles */
         #roomList {
-            color: #fff;
+            color: black;
         }
 
         #roomList a {
@@ -223,8 +230,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <a class="navbar-brand" href="#">
-            <i class="fas fa-meteor logo"></i> Galaxy Chat
-        </a>
+            <i class="fas fa-meteor logo"></i> anonim        </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -246,43 +252,32 @@
 
     <div class="container-fluid chat-container">
         <div class="chat-header">
-            anonim private chat 
+      anonim private chat 
         </div>
 
         <div class="row">
-            <!-- Room List -->
+            
             <div class="col-md-3">
                 <h4 style="color: #fff;">Chat Rooms</h4>
                 <div id="roomList">
-                    <!-- Rooms will be listed here -->
                 </div>
                 <button class="btn btn-success" data-toggle="modal" data-target="#createRoomModal">Create Room</button>
             </div>
-
-            <!-- Chat Area -->
             <div class="col-md-9">
                 <div class="chat-messages" id="messages">
-                    <!-- Messages will be displayed here -->
                 </div>
 
                 <div class="typing-indicator" id="typingIndicator">
-                    <!-- Typing indicator will be displayed here -->
-                </div>
-
-                <!-- Input Area (Moved Below) -->
-                <div class="input-area">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" id="send-button">Send</button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Profile Modal -->
+       <!-- Input Area (Moved Below Chat Messages) -->
+        <div class="input-area">
+            <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
+            <button class="btn btn-primary" type="button" id="send-button">Send</button>
+        </div>
+    </div>
     <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -311,8 +306,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Room Modal -->
     <div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -324,7 +317,6 @@
                 </div>
                 <div class="modal-body">
                     <ul id="availableRooms" class="list-group">
-                        <!-- Available rooms -->
                     </ul>
                 </div>
                 <div class="modal-footer">
@@ -361,7 +353,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
     <script>
         const messagesDiv = document.getElementById('messages');
         const messageInput = document.getElementById('message-input');
@@ -611,13 +602,12 @@
               throw new Error(`HTTP error! status: ${response.status}`);
             }
             const rooms = await response.json();
-            displayRooms(rooms); 
+            displayRooms(rooms); // Call displayRooms with the fetched rooms
           } catch (error) {
             console.error('Error fetching chat rooms:', error);
           }
-        }
+            }
         fetchChatRooms();
     </script>
-
 </body>
 </html>
