@@ -6,7 +6,6 @@ const security = require('./security');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const Joi = require('joi');
-const IPCIDR = require('ip-cidr'); // Import ip-cidr
 
 const app = express();
 const server = http.createServer(app);
@@ -193,62 +192,6 @@ app.get('/messages/:room', (req, res) => {
 
 // 5. Timeouts:
 server.setTimeout(120000); // 120 detik (2 menit)
-
-// **Middleware untuk Verifikasi Cloudflare IP (HATI-HATI PENGGUNAANNYA!)**
-// **LEBIH BAIK KONFIGURASI FIREWALL DI CLOUDFLARE**
-app.use((req, res, next) => {
-  const cfConnectingIp = req.headers['cf-connecting-ip'];
-
-  // **PERHATIAN: PERBARUI DAFTAR INI SECARA BERKALA DARI CLOUDFLARE!**
-  const cloudflareIps = [
-    '173.245.48.0/20',
-    '103.21.244.0/22',
-    '103.22.200.0/22',
-    '103.31.4.0/22',
-    '141.101.64.0/18',
-    '108.162.192.0/18',
-    '190.93.240.0/20',
-    '188.114.96.0/20',
-    '197.234.240.0/22',
-    '198.41.128.0/17',
-    '162.158.0.0/15',
-    '104.16.0.0/13',
-    '104.24.0.0/14',
-    '172.64.0.0/13',
-    '131.0.72.0/22',
-  ];
-
-  function isInRange(ip, cidr) {
-    try {
-      const cidrRange = new IPCIDR(cidr);
-      return cidrRange.contains(ip);
-    } catch (error) {
-      console.error(`Error parsing CIDR range ${cidr}:`, error);
-      return false;
-    }
-  }
-
-  let isCloudflareIp = false;
-  if (cfConnectingIp) {
-    for (const range of cloudflareIps) {
-      if (isInRange(cfConnectingIp, range)) {
-        isCloudflareIp = true;
-        break;
-      }
-    }
-  }
-
-  if (!isCloudflareIp) {
-    console.warn('Permintaan bukan dari Cloudflare. IP:', cfConnectingIp || req.ip);
-    //return res.status(403).send('Akses Dilarang'); // Aktifkan ini jika ingin memblokir
-  } else {
-    console.log('Permintaan dari Cloudflare. IP:', cfConnectingIp);
-  }
-
-  next(); // Lanjutkan ke route handler
-});
-// **AKHIR Middleware Cloudflare IP**
-
 
 const port = 8080;
 server.listen(port, () => {
