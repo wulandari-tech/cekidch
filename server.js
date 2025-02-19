@@ -8,7 +8,9 @@ const helmet = require('helmet');
 const Joi = require('joi');
 
 const app = express();
-const server = http.createServer(app);
+
+// Aktifkan "trust proxy" SEBELUM inisialisasi rateLimit
+app.set('trust proxy', true);
 
 // 1. Rate Limiting:
 const limiter = rateLimit({
@@ -69,6 +71,8 @@ let rooms = db.rooms || [{ name: 'General' }]; // Ensure rooms exist, default to
 let globalUsername = "Guest";
 let globalProfileImageBase64 = "";
 let clients = [];
+
+const server = http.createServer(app);
 
 app.get('/', (req, res) => {
   fs.readFile('index.html', (err, data) => {
