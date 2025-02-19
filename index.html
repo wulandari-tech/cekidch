@@ -10,11 +10,12 @@
         body, html {
             height: 100%;
             margin: 0;
-            background: linear-gradient(to bottom, #040D21, #0A1931, #1E2A4A); /* Deep space gradient */
+            background: linear-gradient(to bottom, #040D21, #0A1931, #1E2A4A);
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden; 
+            overflow: hidden;
         }
+
         body::before {
             content: '';
             position: fixed;
@@ -23,7 +24,7 @@
             width: 100%;
             height: 100%;
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise"/><feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/></filter></defs><rect width="100%" height="100%" filter="url(#noise)" fill="transparent"/></svg>');
-            opacity: 0.2; /* Subtle star effect */
+            opacity: 0.2;
             z-index: -1;
             pointer-events: none;
         }
@@ -35,13 +36,13 @@
         }
 
         .chat-header {
-            background-color: rgba(55, 0, 179, 0.8); /* Translucent purple header */
+            background-color: rgba(55, 0, 179, 0.8);
             color: white;
             text-align: center;
             padding: 20px;
             font-size: 1.5rem;
             flex-shrink: 0;
-            backdrop-filter: blur(10px); /* Frosted glass effect */
+            backdrop-filter: blur(10px);
         }
 
         .chat-messages {
@@ -51,41 +52,51 @@
         }
 
         .message {
-            background-color: rgba(66, 66, 66, 0.7); /* Translucent dark message */
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 10px;
             word-break: break-word;
             backdrop-filter: blur(5px);
+            max-width: 80%;
+        }
+
+        .message.sent {
+            background-color: rgba(41, 182, 246, 0.7);
+            align-self: flex-end;
+        }
+
+        .message.received {
+            background-color: rgba(156, 39, 176, 0.7);
+            align-self: flex-start;
         }
 
         .input-area {
             padding: 15px;
-            background-color: rgba(33, 33, 33, 0.8); /* Translucent dark input area */
+            background-color: rgba(33, 33, 33, 0.8);
             flex-shrink: 0;
             backdrop-filter: blur(10px);
         }
 
         #message-input {
             border-radius: 5px;
-            background-color: rgba(48, 48, 48, 0.5); /* Translucent dark input */
+            background-color: rgba(48, 48, 48, 0.5);
             color: #fff;
             border: 1px solid rgba(66, 66, 66, 0.5);
         }
 
         #message-input::placeholder {
-            color: #ddd; /* Light placeholder text */
+            color: #ddd;
         }
 
         #send-button {
             border-radius: 5px;
-            background-color: #6200EA; /* Glowing purple button */
+            background-color: #6200EA;
             border: none;
             transition: background-color 0.3s ease;
         }
 
         #send-button:hover {
-            background-color: #7B1FA2; /* Darker purple on hover */
+            background-color: #7B1FA2;
         }
 
         .typing-indicator {
@@ -95,7 +106,7 @@
 
         /* Navbar Styles */
         .navbar {
-            background-color: rgba(48, 63, 159, 0.7); /* Translucent dark blue navbar */
+            background-color: rgba(48, 63, 159, 0.7);
             backdrop-filter: blur(10px);
         }
 
@@ -103,8 +114,8 @@
             color: white !important;
             font-weight: bold;
             transition: color 0.3s ease;
-            display: flex; /* Use flexbox for vertical alignment */
-            align-items: center; /* Vertically center the logo and text */
+            display: flex;
+            align-items: center;
         }
 
         .navbar-brand:hover {
@@ -117,7 +128,7 @@
 
         /* Modal Styles */
         .modal-content {
-            background-color: rgba(33, 33, 33, 0.9); /* Translucent dark modal */
+            background-color: rgba(33, 33, 33, 0.9);
             color: white;
             border: 1px solid rgba(66, 66, 66, 0.5);
             backdrop-filter: blur(10px);
@@ -150,7 +161,7 @@
         .navbar-brand .logo {
             transition: transform 0.5s ease-in-out, color 0.3s ease;
             display: inline-block;
-            margin-right: 8px; /* Space between logo and text */
+            margin-right: 8px;
         }
 
         .navbar-brand:hover .logo {
@@ -160,18 +171,59 @@
 
         /* New Cool Logo */
         .fa-meteor {
-            font-size: 1.5em; /* Adjust size */
-            color: #64B5F6; /* Light blue for meteor */
-            text-shadow: 0 0 10px #00BCD4; /* Glowing effect */
+            font-size: 1.5em;
+            color: #64B5F6;
+            text-shadow: 0 0 10px #00BCD4;
+        }
+
+        /* Online Indicator */
+        .online-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        /* Room List Styles */
+        #roomList {
+            color: #fff;
+        }
+
+        #roomList a {
+            color: #81D4FA;
+            display: block;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #roomList a:hover {
+            background-color: rgba(129, 212, 250, 0.2);
+            text-decoration: none;
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) {
+            .chat-header {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- Audio Element -->
+    <audio id="backgroundMusic" loop autoplay>
+        <source src="https://files.catbox.moe/irf66d.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <a class="navbar-brand" href="#">
-            <i class="fas fa-meteor logo"></i> anonim privaye chat
+            <i class="fas fa-meteor logo"></i> Galaxy Chat
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -183,28 +235,48 @@
                         <i class="fas fa-user-astronaut"></i> Profile
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="modal" data-target="#roomModal">
+                        <i class="fas fa-comments"></i> Rooms
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>
 
     <div class="container-fluid chat-container">
         <div class="chat-header">
-            anonim private chat
+            anonim private chat 
         </div>
 
-        <div class="chat-messages" id="messages">
-            <!-- Messages will be displayed here -->
-        </div>
+        <div class="row">
+            <!-- Room List -->
+            <div class="col-md-3">
+                <h4 style="color: #fff;">Chat Rooms</h4>
+                <div id="roomList">
+                    <!-- Rooms will be listed here -->
+                </div>
+                <button class="btn btn-success" data-toggle="modal" data-target="#createRoomModal">Create Room</button>
+            </div>
 
-        <div class="typing-indicator" id="typingIndicator">
-            <!-- Typing indicator will be displayed here -->
-        </div>
+            <!-- Chat Area -->
+            <div class="col-md-9">
+                <div class="chat-messages" id="messages">
+                    <!-- Messages will be displayed here -->
+                </div>
 
-        <div class="input-area">
-            <div class="input-group">
-                <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="button" id="send-button">Send</button>
+                <div class="typing-indicator" id="typingIndicator">
+                    <!-- Typing indicator will be displayed here -->
+                </div>
+
+                <!-- Input Area (Moved Below) -->
+                <div class="input-area">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button" id="send-button">Send</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -228,6 +300,7 @@
                     <div class="form-group">
                         <label for="profileImage">Profile Picture</label>
                         <input type="file" class="form-control-file" id="profileImage">
+                        <small class="form-text text-muted">Choose a profile picture (optional)</small>
                     </div>
                     <img id="profilePreview" src="" alt="Profile Preview" style="max-width: 100px; max-height: 100px; margin-top: 10px;">
                 </div>
@@ -239,11 +312,53 @@
         </div>
     </div>
 
-    <!-- GSAP Library -->
+    <!-- Room Modal -->
+    <div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="roomModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roomModalLabel">Join Room</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul id="availableRooms" class="list-group">
+                        <!-- Available rooms -->
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Room Modal -->
+    <div class="modal fade" id="createRoomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createRoomModalLabel">Create Room</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="roomName">Room Name</label>
+                        <input type="text" class="form-control" id="roomName" placeholder="Enter room name">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="createRoom">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
-    <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
@@ -252,26 +367,52 @@
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         const typingIndicator = document.getElementById('typingIndicator');
+        const profileNameInput = document.getElementById('profileName');
+        const profileImageInput = document.getElementById('profileImage');
+        const profilePreview = document.getElementById('profilePreview');
+        const saveProfileButton = document.getElementById('saveProfile');
+        const roomListDiv = document.getElementById('roomList');
+        const availableRoomsList = document.getElementById('availableRooms');
+        const createRoomNameInput = document.getElementById('roomName');
+        const createRoomButton = document.getElementById('createRoom');
+        const audio = document.getElementById('backgroundMusic');
 
         let typingTimeout;
-        let username = "Guest"; // Default username
-        let profileImageBase64 = ""; // Default profile image
+        let username = "Guest";
+        let profileImageBase64 = "";
+        let currentRoom = "General"; // Default room
+
+        // Load initial data
+        loadData();
+
+        // Function to load data from server
+        async function loadData() {
+            try {
+                const response = await fetch('/load-data');
+                if (!response.ok) {
+                    throw new Error('Failed to load data');
+                }
+                const data = await response.json();
+                username = data.username;
+                profileImageBase64 = data.profileImageBase64;
+                displayRooms(data.rooms);
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
 
         // Function to show typing indicator
         function showTypingIndicator() {
             typingIndicator.textContent = `${username} is typing...`;
             typingIndicator.style.display = "block";
 
-            // Clear any existing timeout
             clearTimeout(typingTimeout);
-
-            // Set a timeout to hide the indicator after 1.5 seconds
             typingTimeout = setTimeout(() => {
                 typingIndicator.style.display = "none";
             }, 1500);
         }
 
-        // Add input event listener to message input
+        // Listen for typing events
         messageInput.addEventListener('input', showTypingIndicator);
 
         // SSE Connection
@@ -279,7 +420,7 @@
 
         eventSource.onmessage = (event) => {
             const messageData = JSON.parse(event.data);
-            displayMessage(messageData.message, messageData.username, messageData.profileImageBase64);
+            displayMessage(messageData.message, messageData.username, messageData.profileImageBase64, messageData.room);
         };
 
         eventSource.onerror = (error) => {
@@ -291,19 +432,19 @@
         sendButton.addEventListener('click', () => {
             const message = messageInput.value.trim();
             if (message) {
-                sendMessage(message);
+                sendMessage(message, currentRoom);
                 messageInput.value = '';
             }
         });
 
-        async function sendMessage(message) {
+        async function sendMessage(message, room) {
             try {
                 const response = await fetch('/send-message', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ message: message, username: username, profileImageBase64: profileImageBase64 }) // Send username
+                    body: JSON.stringify({ message: message, username: username, profileImageBase64: profileImageBase64, room: room })
                 });
 
                 if (!response.ok) {
@@ -314,34 +455,29 @@
             }
         }
 
-        // Display Message with GSAP animation
-        function displayMessage(message, username, profileImageBase64) {
+        // Display Message
+        function displayMessage(message, username, profileImageBase64, room) {
+            if (room !== currentRoom) return; // Only display messages for the current room
+
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
+            messageDiv.classList.add(username === window.username ? 'sent' : 'received'); // Add sent/received class
 
-            // Display the message with username and profile image
             messageDiv.innerHTML = `
                 <img src="${profileImageBase64 ? profileImageBase64 : 'https://via.placeholder.com/50'}" alt="Profile" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;">
                 <b>${username}:</b> ${message}
             `;
 
-            // Animate the message entrance
             gsap.fromTo(messageDiv,
                 { opacity: 0, y: -20 },
                 { opacity: 1, y: 0, duration: 0.3 }
             );
 
             messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
         // Profile Modal Logic
-        const profileNameInput = document.getElementById('profileName');
-        const profileImageInput = document.getElementById('profileImage');
-        const profilePreview = document.getElementById('profilePreview');
-        const saveProfileButton = document.getElementById('saveProfile');
-
-        // Load profile information when modal is opened
         $('#profileModal').on('show.bs.modal', function (e) {
             profileNameInput.value = username;
             profilePreview.src = profileImageBase64 ? profileImageBase64 : "";
@@ -361,18 +497,13 @@
 
         // Save profile information
         saveProfileButton.addEventListener('click', function () {
-            // Get values from modal
             const newUsername = profileNameInput.value || "Guest";
             const newProfileImageBase64 = profilePreview.src;
 
-            // Send update request to the server
             updateProfile(newUsername, newProfileImageBase64);
-
-            // Close modal
             $('#profileModal').modal('hide');
         });
 
-        // Function to send profile update to server
         async function updateProfile(newUsername, newProfileImageBase64) {
             try {
                 const response = await fetch('/update-profile', {
@@ -390,10 +521,102 @@
                 const data = await response.json();
                 username = data.username;
                 profileImageBase64 = data.profileImageBase64;
+                window.username = username; // Update global username for new messages
             } catch (error) {
                 console.error('Error updating profile:', error);
             }
         }
+
+        // Room Management
+        // Function to display available rooms
+        function displayRooms(rooms) {
+            roomListDiv.innerHTML = '';
+            availableRoomsList.innerHTML = '';
+
+            rooms.forEach(room => {
+                const roomLink = document.createElement('a');
+                roomLink.href = '#';
+                roomLink.textContent = room.name;
+                roomLink.classList.add('list-group-item', 'list-group-item-action');
+
+                // Event listener to switch to the selected room
+                roomLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    switchRoom(room.name);
+                });
+
+                roomListDiv.appendChild(roomLink);
+
+                const availableRoomItem = document.createElement('li');
+                availableRoomItem.classList.add('list-group-item');
+                availableRoomItem.textContent = room.name;
+                availableRoomsList.appendChild(availableRoomItem);
+            });
+        }
+
+        // Function to switch rooms
+        function switchRoom(roomName) {
+            currentRoom = roomName;
+            messagesDiv.innerHTML = ''; // Clear old messages
+            fetchMessagesForRoom(roomName);
+        }
+
+        // Function to fetch messages for the selected room
+        async function fetchMessagesForRoom(roomName) {
+            try {
+                const response = await fetch(`/messages/${roomName}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const messages = await response.json();
+                messages.forEach(message => {
+                    displayMessage(message.message, message.username, message.profileImageBase64, message.room);
+                });
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+            }
+        }
+
+        // Create Room
+        createRoomButton.addEventListener('click', async function () {
+            const roomName = createRoomNameInput.value.trim();
+            if (roomName) {
+                try {
+                    const response = await fetch('/create-room', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name: roomName }),
+                    });
+
+                    if (response.ok) {
+                        const newRoom = await response.json();
+                        displayRooms(newRoom); // Assuming the response contains all rooms
+                        $('#createRoomModal').modal('hide');
+                        createRoomNameInput.value = ''; // Clear input
+                    } else {
+                        console.error('Failed to create room:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error creating room:', error);
+                }
+            }
+        });
+        // Initial fetch to list chat rooms when the page loads
+        async function fetchChatRooms() {
+          try {
+            const response = await fetch('/chat-rooms'); // Replace with your server endpoint
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const rooms = await response.json();
+            displayRooms(rooms); 
+          } catch (error) {
+            console.error('Error fetching chat rooms:', error);
+          }
+        }
+        fetchChatRooms();
     </script>
 
 </body>
