@@ -54,10 +54,10 @@ const takenUsernames = new Set(users.map(user => user.username));
 let globalProfileImageBase64 = "";
 let clients = [];
 
-app.use(express.static(path.join(__dirname, 'public'))); // Melayani file statis (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname, ''))); // Melayani file statis  CSS, JS)
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html')); // Kirim file index.html
+    res.sendFile(path.join(__dirname, 'index.html')); // Kirim file index.html
 });
 
 app.get('/events', (req, res) => {
