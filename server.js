@@ -1,185 +1,109 @@
-const express = require('express');
 const http = require('http');
 const fs = require('fs');
-const path = require('path');
-const security = require('./security'); // Pastikan file ini ada!
-const app = express();
-const server = http.createServer(app);
+const fetch = require('node-fetch'); // Pastikan sudah di-install: npm install node-fetch
+const formidable = require('formidable'); // Untuk parsing form data
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const PORT = 3000;
+const PICSART_API_ENDPOINT = 'https://api.picsart.io/image/v1/upscale'; // GANTI dengan endpoint yang BENAR!
+const JWT_TOKEN = 'eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9...'; // GANTI dengan token JWT Anda!
 
-const dbFilePath = path.join(__dirname, 'database.json');
+const server = http.createServer(async (req, res) => {
+    // --- CORS (Cross-Origin Resource Sharing) ---
+    // Izinkan semua origins (HANYA untuk development! Jangan gunakan ini di production)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-// Helper function to read data from database.json
-function readDatabase() {
-    try {
-        const data = fs.readFileSync(dbFilePath, 'utf8');
-        return JSON.parse(data);
-    } catch (err) {
-        console.error('Error reading database file:', err);
-        // Jika file tidak ada, buat dengan struktur default
-        if (err.code === 'ENOENT') {
-            console.log('Database file tidak ditemukan, membuat yang baru...');
-            const defaultData = { users: [], messages: [], rooms: [{ name: 'General' }] };
-            fs.writeFileSync(dbFilePath, JSON.stringify(defaultData, null, 2), 'utf8');
-            console.log('File database baru dibuat.');
-            return defaultData;
-        }
-        return { users: [], messages: [], rooms: [{ name: 'General' }] }; // Kembalikan data default
-    }
-}
-
-// Helper function to write data to database.json
-function writeDatabase(data) {
-    try {
-        fs.writeFileSync(dbFilePath, JSON.stringify(data, null, 2), 'utf8');
-    } catch (err) {
-        console.error('Error writing to database file:', err);
-    }
-}
-
-// Inisialisasi database
-let db = readDatabase();
-
-// Load data awal dari database
-let users = db.users;
-let messages = db.messages;
-let rooms = db.rooms || [{ name: 'General' }];
-
-// Gunakan objek untuk menyimpan nama pengguna yang telah diambil
-const takenUsernames = new Set(users.map(user => user.username));
-
-let globalProfileImageBase64 = "";
-let clients = [];
-
-app.use(express.static(path.join(__dirname, ''))); // Melayani file statis  CSS, JS)
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html')); // Kirim file index.html
-});
-
-app.get('/events', (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.flushHeaders();
-
-    const clientId = Date.now();
-    const newClient = {
-        id: clientId,
-        res
-    };
-    clients.push(newClient);
-
-    // Kirim pesan yang ada ke klien baru
-    messages.forEach(message => {
-        newClient.res.write(`data: ${JSON.stringify(message)}\n\n`);
-    });
-
-    req.on('close', () => {
-        console.log(`${clientId} Connection closed`);
-        clients = clients.filter(client => client.id !== clientId);
-    });
-});
-
-app.post('/send-message', (req, res) => {
-    let { message, username, profileImageBase64, room } = req.body;
-    message = security.sanitizeString(message); // Sanitasi pesan
-
-    const messageData = {
-        message: message,
-        username: username, // Gunakan nama pengguna yang dikirim dari klien
-        profileImageBase64: profileImageBase64,
-        room: room
-    };
-
-    messages.push(messageData);
-
-    // Batasi jumlah pesan
-    if (messages.length > 200) {
-        messages.shift();
+    // Handle preflight requests (OPTIONS)
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
     }
 
-    clients.forEach(client => {
-        client.res.write(`data: ${JSON.stringify(messageData)}\n\n`);
-    });
 
-    db.messages = messages;
-    writeDatabase(db);
+    if (req.url === '/' && req.method === 'GET') {
+        // --- Tampilkan halaman HTML (index.html) ---
+        fs.readFile('index.html', (err, data) => {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Internal Server Error');
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(data);
+        });
 
-    res.status(200).send('Message sent');
-});
+    } else if (req.url === '/upscale' && req.method === 'POST') {
+        // --- Handle upload gambar dan kirim ke API Picsart ---
+        const form = new formidable.IncomingForm();
 
-app.post('/update-profile', (req, res) => {
-    let { username, profileImageBase64 } = req.body;
-    username = security.sanitizeString(username); // Sanitasi nama pengguna
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                console.error('Error parsing form:', err);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Error processing upload' }));
+                return;
+            }
+            
+            // Periksa apakah file gambar ada
+            if (!files.image || !files.image[0]) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'No image file uploaded' }));
+                return;
+            }
+           
+            const imageFile = files.image[0];
 
-    // Periksa apakah nama pengguna sudah digunakan
-    if (takenUsernames.has(username)) {
-        return res.status(400).json({ message: 'Nama pengguna sudah digunakan.' });
-    }
+            // Baca file gambar
+            const imageBuffer = fs.readFileSync(imageFile.filepath);
+            const base64Image = imageBuffer.toString('base64');
+             // Hapus file sementara setelah dibaca
+            fs.unlinkSync(imageFile.filepath);
 
-    // Jika nama pengguna baru, tambahkan ke set
-    if (!users.find(user => user.username === username)) {
-        takenUsernames.add(username);
-    }
+            // Buat request ke API Picsart
+            try {
+                const picsartResponse = await fetch(PICSART_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${JWT_TOKEN}`,
+                        'Content-Type': 'application/json' // Sesuaikan jika perlu
+                    },
+                    body: JSON.stringify({
+                        image_data: base64Image, // GANTI dengan key yang benar!
+                        scale_factor: 2, // GANTI atau tambahkan parameter lain sesuai dokumentasi
+                        // ... parameter lain ...
+                    })
+                });
 
-    // Update profil
-    globalUsername = username || "Guest"; // Jika kosong, gunakan "Guest"
-    globalProfileImageBase64 = profileImageBase64 || "";
+                if (!picsartResponse.ok) {
+                    const errorData = await picsartResponse.json();
+                    console.error('Picsart API Error:', picsartResponse.status, errorData);
+                    res.writeHead(picsartResponse.status, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: `Picsart API Error: ${picsartResponse.status} - ${JSON.stringify(errorData)}` }));
+                    return;
+                }
 
-    // Perbarui atau buat pengguna
-    let existingUserIndex = users.findIndex(user => user.username === globalUsername);
-    if (existingUserIndex !== -1) {
-        // Perbarui pengguna yang ada
-        users[existingUserIndex] = { username: globalUsername, profileImageBase64: globalProfileImageBase64 };
+                const result = await picsartResponse.json();
+
+                // Kirim kembali data gambar yang di-upscale ke client
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ upscaled_image: result.upscaled_image })); // Ganti "upscaled_image" jika perlu
+
+            } catch (error) {
+                console.error('Error calling Picsart API:', error);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Error calling Picsart API' }));
+            }
+        });
+
     } else {
-        // Buat pengguna baru
-        const newUser = { username: globalUsername, profileImageBase64: globalProfileImageBase64 };
-        users.push(newUser);
+        // --- Handle URL yang tidak ditemukan ---
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not Found');
     }
-
-    // Update database
-    db.users = users;
-    writeDatabase(db);
-
-    res.json({ username: globalUsername, profileImageBase64: globalProfileImageBase64 });
 });
 
-// Endpoint untuk mendapatkan daftar ruang obrolan
-app.get('/chat-rooms', (req, res) => {
-    res.json(rooms);
-});
-
-app.post('/create-room', (req, res) => {
-    const { name } = req.body;
-    // Check jika ruang sudah ada
-    if (rooms.find(room => room.name === name)) {
-        return res.status(400).json({ message: 'Ruang sudah ada' });
-    }
-
-    const newRoom = { name: security.sanitizeString(name) };
-    rooms.push(newRoom);
-
-    // Update database
-    db.rooms = rooms;
-    writeDatabase(db);
-
-    res.status(201).json(rooms);
-});
-
-app.get('/load-data', (req, res) => {
-    res.json({ username: globalUsername, profileImageBase64: globalProfileImageBase64, rooms: rooms });
-});
-
-app.get('/messages/:room', (req, res) => {
-    const roomName = req.params.room;
-    const roomMessages = messages.filter(message => message.room === roomName);
-    res.json(roomMessages);
-});
-
-const port = 8080;
-server.listen(port, () => {
-    console.log(`Server mendengarkan di port ${port}`);
+server.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
 });
