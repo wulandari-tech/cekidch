@@ -5,7 +5,7 @@ const formidable = require('formidable'); // Untuk parsing form data
 
 const PORT = 3000;
 const PICSART_API_ENDPOINT = 'https://api.picsart.io/image/v1/upscale'; // GANTI dengan endpoint yang BENAR!
-const JWT_TOKEN = 'eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9...'; // GANTI dengan token JWT Anda!
+const JWT_TOKEN = 'eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhdXRoLXNlcnZpY2UtNDAwMjczZDMtOTRlNC00MzVhLWFlNDgtMzhkOTQ1NjgzMDk1IiwiYXVkIjoiNDY4MDIxNjI0MDIxMTAxIiwibmJmIjoxNzQyMTYwNTc4LCJzY29wZSI6WyJiMmItYXBpLmdlbl9haSIsImIyYi1hcGkuaW1hZ2VfYXBpIl0sImlzcyI6Imh0dHBzOi8vYXBpLnBpY3NhcnQuY29tL3Rva2VuLXNlcnZpY2UiLCJvd25lcklkIjoiNDY4MDIxNjI0MDIxMTAxIiwiaWF0IjoxNzQyMTYwNTc4LCJqdGkiOiJjNjkxNzVhNC04MjU0LTQ5NjAtYTE5Yy1hODU5OGNiOTZlM2UifQ.XSuUrmntGGKzTuEZdGo2k1-So098JV2tzK5_vwlOyIVqXYFtlNGWbbLnwEbVOozJOuBubtRAhXaCUu1aQGhBjHYmo6LoqzlGh5sD0_H-C8Z2rsMzGIocN3f19gGa486earuacw_q9xfJTkAUFSIO0mFdQ4BRcIiMO9ZHo_fI9xQPZjXwD5LYDEy2fX7eevtvken16hNdTZZVzD05t690lbMJiGUtOJFIG90fZetjyZ3WMNfw9nycBM0KiJz9i_v4rp6czTqs_wLfYrsh6j7s5NY9BhojtNR0DQMuuSYY4oZNimE87dnYtXWRJ_WaLx-PJ4iDj_kjwgEz-hAkRyDz0g'; // GANTI dengan token JWT Anda!
 
 const server = http.createServer(async (req, res) => {
     // --- CORS (Cross-Origin Resource Sharing) ---
