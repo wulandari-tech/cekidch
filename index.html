@@ -1,68 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Picsart Upscale</title>
-    <style>
-        #resultImage {
-            max-width: 100%; /* Pastikan gambar tidak melebihi lebar container */
-            height: auto; /* Biarkan tinggi menyesuaikan proporsi */
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phone Number Lookup</title>
+  <style>
+    /* (CSS tetap sama seperti sebelumnya) */
+    body {
+      font-family: sans-serif;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #results {
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    .error {
+      color: red;
+    }
+    .info-item {
+        margin-bottom: 5px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Upscale Gambar dengan Picsart API</h1>
+  <div class="container">
+    <h1>Phone Number Lookup</h1>
+    <input type="text" id="phoneNumber" placeholder="Enter phone number (e.g., 13046252000)">
+    <button id="lookupButton">Lookup</button>
+    <div id="results"></div>
+  </div>
 
-    <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" name="image" id="imageInput" accept="image/*">
-        <button type="submit">Upscale</button>
-    </form>
+  <script>
+    // (JavaScript tetap sama seperti sebelumnya)
+    const lookupButton = document.getElementById('lookupButton');
+    const phoneNumberInput = document.getElementById('phoneNumber');
+    const resultsDiv = document.getElementById('results');
 
-    <div id="result">
-        <h2>Hasil Upscale:</h2>
-        <img id="resultImage" src="" alt="Upscaled Image">
-        <p id="errorMessage" style="color: red;"></p>
-    </div>
+    lookupButton.addEventListener('click', async () => {
+      const phoneNumber = phoneNumberInput.value.trim();
+      resultsDiv.innerHTML = ''; // Clear previous results
 
-    <script>
-        const uploadForm = document.getElementById('uploadForm');
-        const imageInput = document.getElementById('imageInput');
-        const resultImage = document.getElementById('resultImage');
-        const errorMessage = document.getElementById('errorMessage');
+      if (!phoneNumber) {
+        resultsDiv.innerHTML = '<p class="error">Please enter a phone number.</p>';
+        return;
+      }
 
-        uploadForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Mencegah form submit default
-            errorMessage.textContent = ''; // Reset pesan error
-            resultImage.src = ''; // Reset gambar
-
-            const formData = new FormData();
-            formData.append('image', imageInput.files[0]);
-
-            try {
-                const response = await fetch('/upscale', {  // Perhatikan URL: /upscale
-                    method: 'POST',
-                    body: formData, // Kirim FormData (bukan JSON) karena ini file upload
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    errorMessage.textContent = errorData.error;
-                    return;
-                }
-
-                const result = await response.json();
-
-                // Tampilkan gambar yang di-upscale
-                if (result.upscaled_image) {
-                    resultImage.src = `data:image/jpeg;base64,${result.upscaled_image}`; // Asumsi hasil Base64
-                } else {
-                    errorMessage.textContent = 'Upscaled image not found in response.';
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                errorMessage.textContent = 'An error occurred during the request.';
-            }
+      try {
+        const response = await fetch('/lookup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ phoneNumber }),
         });
-    </script>
+
+        const data = await response.json();
+
+        if (response.ok) {
+          if (data.error) {
+              resultsDiv.innerHTML = `<p class="error">${data.error}</p>`;
+          } else {
+              let html = '';
+              for (const key in data) {
+                  html += `<div class="info-item"><strong>${key}:</strong> ${data[key]}</div>`;
+              }
+              resultsDiv.innerHTML = html;
+          }
+        } else {
+          resultsDiv.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+        }
+      } catch (error) {
+        resultsDiv.innerHTML = `<p class="error">An unexpected error occurred: ${error}</p>`;
+      }
+    });
+  </script>
 </body>
 </html>
