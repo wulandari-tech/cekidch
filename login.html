@@ -161,7 +161,7 @@
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
         <button id="login-button">Login</button>
-        <p class="signup-link">Belum punya akun? <a href="signup.html">Daftar</a></p>
+        <p class="signup-link">Belum punya akun? <a href="/daftar">Daftar</a></p>
         <p id="error-message"></p>
     </div>
 
@@ -222,7 +222,7 @@
                         const data = await response.json();
                          // Simpan token di localStorage (atau sessionStorage)
                         localStorage.setItem('token', data.token);
-                        window.location.href = 'request.html'; //  Redirect
+                        window.location.href = '/request'; //  Redirect
                     } else {
                         const errorData = await response.json();
                         showError(errorData.message);
