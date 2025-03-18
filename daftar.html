@@ -397,7 +397,7 @@
             </button>
         </form>
         <div class="links">
-            <a href="/login">Already have an account? Login here</a>
+            <a href="/">Already have an account? Login here</a>
         </div>
     </div>
 
@@ -451,7 +451,7 @@ document.querySelector('button').addEventListener('click', function(e) {
                     successDiv.textContent = "Registration successful! Redirecting to login...";
                 document.querySelector('.container').style.animation = 'floatOut 0.8s ease-in forwards';
                     setTimeout(() => {
-                        window.location.href = '/login';
+                        window.location.href = '/';
                     }, 1500);
                 } else {
                     
