@@ -13,10 +13,15 @@ app.use(helmet());
 
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 100 
+  windowMs: 5 * 60 * 1000,
+  max: config.MAXREQ,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests STFU!." },
+  keyGenerator: (req) => {
+    return req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  },
 });
-app.use(limiter);
 
 
 app.use(bodyParser.json());
