@@ -1,239 +1,130 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch');
-const path = require('path');
-
+const fs = require('fs');
 const app = express();
 const port = 3000;
 
-// !!! REPLACE WITH YOUR ACTUAL VALUES !!!  (Still NOT recommended for production)
-const PTERODACTYL_API_KEY = 'ptla_YxDXXCKIGs76LNnPPmHE5TUEU32XEfcDPwTtHt4vbwe'; //YOUR_PTERODACTYL_API_KEY
-const PTERODACTYL_BASE_URL = 'https://m16x05x01.cjdw.tech'; //YOUR_PTERODACTYL_BASE_URL
-
-// Middleware
 app.use(bodyParser.json());
-app.use(express.static(__dirname)); // Serve static files
+app.use(express.static(__dirname)); // Sajikan file statis
 
-// --- Helper Function for Pterodactyl API Requests ---
-async function pterodactylRequest(endpoint, method = 'GET', data = null) {
-    const url = `${PTERODACTYL_BASE_URL}/api/application${endpoint}`;
-    const options = {
-        method,
-        headers: {
-            'Authorization': `Bearer ${PTERODACTYL_API_KEY}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: data ? JSON.stringify(data) : null,
-    };
+// --- Data Handling (Simpan ke data.json) ---
 
-    const response = await fetch(url, options);
-    return response;
+function loadData() {
+    try {
+        const data = fs.readFileSync('data.json', 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        // Jika file belum ada atau error, buat struktur data awal
+        return { users: {}, messages: [] };
+    }
 }
 
-// --- SERVER ENDPOINTS ---
+function saveData(data) {
+    fs.writeFileSync('data.json', JSON.stringify(data, null, 2), 'utf8');
+}
 
-// Get all servers
-app.get('/servers', async (req, res) => {
-    try {
-        const response = await pterodactylRequest('/servers');
-        const data = await response.json();
-        if (!response.ok) {
-            return res.status(response.status).json({ error: data.errors ? data.errors.map(e => e.detail).join(', ') : response.statusText })
-        }
-        res.json(data.data);
-    } catch (error) {
-        console.error('Error fetching servers:', error);
-        res.status(500).json({ error: 'Internal server error' });
+
+// --- Endpoint ---
+
+// Signup
+app.post('/signup', (req, res) => {
+    const { username, password } = req.body;
+    const data = loadData();
+
+    if (data.users[username]) {
+        return res.status(400).json({ message: 'Username sudah terdaftar.' });
     }
+
+    data.users[username] = { password }; // Simpan password (seharusnya di-hash!)
+    saveData(data);
+    res.status(201).json({ message: 'Pendaftaran berhasil!' });
 });
 
-// Get server resources (for status)
-app.get('/servers/:id/resources', async(req, res) => {
-    try{
-      const serverId = req.params.id;
-      const url = `${PTERODACTYL_BASE_URL}/api/client/servers/${serverId}/resources`;
-      const options = {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${PTERODACTYL_API_KEY}`,
-            'Accept': 'application/json',
-        }
-      };
+// Login
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    const data = loadData();
 
-      const response = await fetch(url, options);
-      const data = await response.json();
-      if(!response.ok){
-          return res.status(response.status).json({error: data.errors ? data.errors.map(e => e.detail).join(', ') : response.statusText})
-      }
-
-      res.json(data);
-
-    } catch (error) {
-        console.error(`Error getting resources for ${req.params.id}`, error);
-        res.status(500).json({ error: 'Internal server error' });
+    if (!data.users[username] || data.users[username].password !== password) {
+        return res.status(401).json({ message: 'Username atau password salah.' });
     }
-})
 
-// Create a new server
-app.post('/servers', async (req, res) => {
-    try {
-        const { name, description, nest_id, egg_id, memory, disk } = req.body;
-
-        const createData = {
-            name,
-            description,
-            user: 1,  //  Hardcoded user ID 1 (admin) -  You MUST change this in production!
-            nest: nest_id,
-            egg: egg_id,
-            docker_image: "quay.io/parkervcp/pterodactyl-images:base_debian", // Example
-            startup: "java -Xms128M -Xmx{{SERVER_MEMORY}}M -jar server.jar",  // Example
-            environment: {
-                SERVER_JARFILE: "server.jar",
-            },
-            limits: {
-                memory,
-                swap: 0,
-                disk,
-                io: 500,
-                cpu: 0,
-            },
-            feature_limits: {
-                databases: 0,
-                allocations: 1,
-                backups: 0
-            },
-            deploy: {
-                locations: [1],  // Hardcoded location ID 1 - You MUST change this in production!
-                dedicated_ip: false,
-                port_range: [],
-            },
-        };
-
-        const response = await pterodactylRequest('/servers', 'POST', createData);
-        const data = await response.json();
-
-        if (!response.ok) {
-            return res.status(response.status).json({ error: data.errors ? data.errors.map(e => e.detail).join(', ') : response.statusText })
-        }
-        res.status(201).json(data); // 201 Created
-
-    } catch (error) {
-        console.error('Error creating server:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+    // Sesi sederhana (gunakan JWT atau library sesi yang lebih baik di produksi)
+    res.status(200).json({ message: 'Login berhasil!', token: username }); // Kirim "token" sederhana
 });
 
-// Delete a server
-app.delete('/servers/:id', async (req, res) => {
-    try {
-        const serverId = req.params.id;
-        const response = await pterodactylRequest(`/servers/${serverId}`, 'DELETE');
-        const data = await response.json(); // Get JSON even if no content
 
-        if (!response.ok && response.status !== 204) { // 204 No Content is expected
-            return res.status(response.status).json({ error: data.errors ? data.errors.map(e => e.detail).join(', ') : response.statusText })
-        }
+// Kirim Pesan (Perlu token)
+app.post('/send-message', (req, res) => {
+    const { token, message } = req.body;
+    const data = loadData();
 
-        res.status(204).send(); // 204 No Content on successful deletion
-
-    } catch (error) {
-        console.error('Error deleting server:', error);
-        res.status(500).json({ error: 'Internal server error' });
+    if (!data.users[token]) {
+        return res.status(403).json({ message: 'Akses ditolak.  Login dulu.' });
     }
+  const now = new Date();
+    const newMessage = {
+        sender: token,
+        message,
+        timestamp: now.toISOString(), //  ISO 8601 format
+        id: Date.now(),  // ID unik berdasarkan timestamp
+        replies: [] //  Untuk menyimpan balasan dari admin
+    };
+
+    data.messages.push(newMessage);
+    saveData(data);
+    res.status(201).json({ message: 'Pesan terkirim!' });
 });
 
-//Server power actions
-app.post('/servers/:id/power', async(req, res) => {
-  try{
-    const serverId = req.params.id;
-    const {signal} = req.body;
+// Ambil Pesan (Hanya untuk admin - token khusus)
+app.get('/get-messages', (req, res) => {
+    const { token } = req.query;
+     const data = loadData();
 
-    const pterodactylResponse = await pterodactylRequest(`/servers/${serverId}/power`, 'POST', {signal});
-    if(!pterodactylResponse.ok){
-      const data = await pterodactylResponse.json()
-      return res.status(pterodactylResponse.status).json({error: data.errors ? data.errors.map(e=>e.detail).join(', ') : pterodactylResponse.statusText})
+     const adminUsername = Object.keys(data.users)[0];
+    if (token !== adminUsername ) { //  Token admin harus sama dengan username admin
+        return res.status(403).json({ message: 'Akses ditolak.' });
     }
-      res.status(204).send();
 
-  }catch(error){
-    console.error('Error sending power action:', error);
-        res.status(500).json({ error: 'Internal server error' });
-  }
-})
-
-// --- USER ENDPOINTS ---
-
-//get all users
-app.get('/users', async(req, res) => {
-  try{
-    const response = await pterodactylRequest('/users');
-    const data = await response.json();
-
-    if(!response.ok){
-        return res.status(response.status).json({error: data.errors ? data.errors.map(e => e.detail).join(', ') : response.statusText})
-    }
-    res.json(data.data)
-
-  } catch(error){
-    console.error("Error fetching users:", error)
-    res.status(500).json({ error: 'Internal server error' });
-  }
-})
-
-// Create a new user
-app.post('/users', async (req, res) => {
-    try {
-        const { email, username, first_name, last_name, password } = req.body;
-
-        const createData = {
-            email,
-            username,
-            first_name,
-            last_name,
-            password,  // Pterodactyl will auto-generate if not provided
-            root_admin: false,
-            language: "en",
-        };
-
-        const response = await pterodactylRequest('/users', 'POST', createData);
-        const data = await response.json();
-
-        if (!response.ok) {
-            return res.status(response.status).json({ error: data.errors ? data.errors.map(e => e.detail).join(', ') : response.statusText })
-        }
-        res.status(201).json(data);
-
-    } catch (error) {
-        console.error('Error creating user:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+    res.status(200).json({ messages: data.messages });
 });
 
-// Delete a user
-app.delete('/users/:id', async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const response = await pterodactylRequest(`/users/${userId}`, 'DELETE');
-          const data = await response.json();
 
-        if (!response.ok && response.status !== 204) {
-            return res.status(response.status).json({ error: data.errors ? data.errors.map(e => e.detail).join(', ') : response.statusText });
-        }
-        res.status(204).send();
+// Balas Pesan (Hanya untuk admin - token khusus + ID pesan)
+app.post('/reply-message', (req, res) => {
+    const { token, messageId, reply } = req.body;
+    const data = loadData();
 
-    } catch (error) {
-        console.error('Error deleting user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+    const adminUsername = Object.keys(data.users)[0]; // Dapatkan username admin pertama
+
+    if (token !== adminUsername) { //  Token admin sederhana.  Harusnya lebih aman.
+        return res.status(403).json({ message: 'Akses ditolak.' });
     }
-});
 
-// Serve admin.html at /admin
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin.html'));
+    const message = data.messages.find(m => m.id === messageId);
+    if (!message) {
+        return res.status(404).json({ message: 'Pesan tidak ditemukan.' });
+    }
+
+      const now = new Date();
+    message.replies.push({
+      sender: "admin", // Atau username admin yang sebenarnya.
+      message: reply,
+      timestamp: now.toISOString(),
+    });
+    saveData(data);
+    res.status(200).json({ message: 'Balasan terkirim!' });
+});
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html')); // Kirim file index.html
+});
+app.get('/request', (req, res) => {
+    res.sendFile(path.join(__dirname, 'request.html')); // Kirim file index.html
+});
+app.get('/daftar', (req, res) => {
+    res.sendFile(path.join(__dirname, 'daftar.html')); // Kirim file index.html
 });
 
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
-    console.log(`Admin panel: http://localhost:${port}/admin`);
 });
