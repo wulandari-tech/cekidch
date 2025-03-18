@@ -7,8 +7,8 @@ const app = express();
 const port = 3000;
 
 // !!! REPLACE WITH YOUR ACTUAL VALUES !!!  (Still NOT recommended for production)
-const PTERODACTYL_API_KEY = 'YOUR_PTERODACTYL_API_KEY'; //YOUR_PTERODACTYL_API_KEY
-const PTERODACTYL_BASE_URL = 'YOUR_PTERODACTYL_BASE_URL'; //YOUR_PTERODACTYL_BASE_URL
+const PTERODACTYL_API_KEY = 'ptla_YxDXXCKIGs76LNnPPmHE5TUEU32XEfcDPwTtHt4vbwe'; //YOUR_PTERODACTYL_API_KEY
+const PTERODACTYL_BASE_URL = 'https://m16x05x01.cjdw.tech'; //YOUR_PTERODACTYL_BASE_URL
 
 // Middleware
 app.use(bodyParser.json());
