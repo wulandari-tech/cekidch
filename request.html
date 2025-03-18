@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wanzofc Request </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,18 +14,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh; /* Use min-height instead of height */
-            overflow-x: hidden; /* Prevent horizontal scrollbar */
-            flex-direction: column; /* Stack items vertically */
+            min-height: 100vh;
+            overflow-x: hidden;
+            flex-direction: column;
         }
 
         .container {
             background-color: #1e1e1e;
-            padding: 30px 40px; /* Reduced padding */
+            padding: 30px 40px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             text-align: center;
-            max-width: 600px; /* Larger max-width */
+            max-width: 600px;
             width: 90%;
             position: relative;
             overflow: hidden;
@@ -149,6 +150,97 @@
             border-radius: 5px;
             font-size: 0.9em;
         }
+        /* Inbox Button */
+        #inbox-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #6a11cb, #2575fc); /* Example: Purple/Blue */
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #inbox-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+         #inbox-button:active{
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0, 0.2);
+        }
+          /* --- Inbox Modal Styles --- */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #1e1e1e;
+            margin: 10% auto; /* 10% from the top and centered */
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 600px; /*  Limit maximum width */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: relative; /*  For the close button */
+
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute; /*  Position relative to .modal-content */
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+         /* Styles for replies within the modal */
+        .reply {
+            border-bottom: 1px solid #333;
+            padding: 10px 0;
+            margin-bottom: 10px;
+        }
+        .reply:last-child{
+          border-bottom: none;
+        }
+
+        .reply-info {
+            color: #aaa;
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+
+        .reply-message {
+            color: #fff;
+            word-wrap: break-word;  /*  Handle long words */
+            overflow-wrap: break-word;
+        }
+        #inbox-empty-message{
+          color:#aaa;
+          text-align: center;
+        }
 
     </style>
 </head>
@@ -159,6 +251,20 @@
         <div class="parallax-layer circle circle-3"></div>
     </div>
      <button id="logout-button">Logout</button>
+      <!-- Inbox Button -->
+    <button id="inbox-button"><i class="fas fa-inbox"></i> Inbox</button>
+
+    <!-- Inbox Modal -->
+    <div id="inbox-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Inbox</h2>
+            <div id="inbox-content">
+                <!-- Replies will be displayed here -->
+            </div>
+             <p id="inbox-empty-message">No messages in inbox.</p>
+        </div>
+    </div>
     <div class="container">
         <h1>Wanzofc Request</h1>
         <textarea id="message" placeholder="Tulis pesan Anda..."></textarea>
@@ -170,127 +276,221 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-    const sendButton = document.getElementById('send-button');
-    const messageInput = document.getElementById('message');
-    const successMessage = document.getElementById('success-message');
-    const errorMessage = document.getElementById('error-message');
-    const logoutButton = document.getElementById('logout-button');
+        const sendButton = document.getElementById('send-button');
+        const messageInput = document.getElementById('message');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+        const logoutButton = document.getElementById('logout-button');
 
-    // --- GSAP Animations ---
-    const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+        // --- Inbox Elements ---
+        const inboxButton = document.getElementById('inbox-button');
+        const inboxModal = document.getElementById('inbox-modal');
+        const inboxContent = document.getElementById('inbox-content');
+        const closeModal = document.querySelector('.close');
+         const inboxEmptyMessage = document.getElementById('inbox-empty-message');
 
-    // Animate container
-    tl.from(".container", { opacity: 0, y: 50, duration: 0.8 });
+        // --- GSAP Animations ---
+        const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
 
-    // Animate textarea
-    tl.from("textarea", { opacity: 0, y: -20, duration: 0.5 }, "-=0.4");
+        // Animate container
+        tl.from(".container", { opacity: 0, y: 50, duration: 0.8 });
 
-    // Animate button
-    tl.from("#send-button", { opacity: 0, scale: 0.8, duration: 0.5 }, "-=0.2");
+        // Animate textarea
+        tl.from("textarea", { opacity: 0, y: -20, duration: 0.5 }, "-=0.4");
 
-     // Animate logout button
-    tl.from("#logout-button", { opacity: 0, scale: 0.8, duration: 0.5 }, "-=0.2");
+        // Animate button
+        tl.from("#send-button", { opacity: 0, scale: 0.8, duration: 0.5 }, "-=0.2");
 
+        // Animate logout button
+        tl.from("#logout-button", { opacity: 0, scale: 0.8, duration: 0.5 }, "-=0.2");
 
-    // Subtle Parallax (only if the user is logged in - prevents errors)
-    const parallaxBg = document.querySelector('.parallax-bg');
-    if(localStorage.getItem('token')){ // Check for token
-        document.addEventListener('mousemove', (e) => {
-          const x = (e.clientX / window.innerWidth) * 50 - 25;
-          const y = (e.clientY / window.innerHeight) * 50 - 25;
+        // Animate inbox button
+        tl.from("#inbox-button", { opacity: 0, scale: 0.8, duration: 0.5 }, "-=0.2");
 
-          gsap.to('.parallax-layer', {
-            x: x,
-            y: y,
-            duration: 1.5,
-            ease: 'power3.out'
-          });
-        });
-    }
+        // Subtle Parallax (only if the user is logged in - prevents errors)
+        const parallaxBg = document.querySelector('.parallax-bg');
+        if(localStorage.getItem('token')){ // Check for token
+            document.addEventListener('mousemove', (e) => {
+              const x = (e.clientX / window.innerWidth) * 50 - 25;
+              const y = (e.clientY / window.innerHeight) * 50 - 25;
 
-
-    // --- Check Login Status ---
-    function checkLoginStatus() {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = 'login.html'; // Redirect to login
-        }
-    }
-    checkLoginStatus(); // Check on page load
-
-    // --- Send Message Logic ---
-    sendButton.addEventListener('click', async () => {
-      const message = messageInput.value;
-      const token = localStorage.getItem('token');
-
-      if (!message) {
-        showError('Harap isi pesan.');
-        return;
-      }
-      if(!token){
-          showError("Anda harus login terlebih dahulu.");
-          setTimeout(()=> window.location.href = 'login.html', 2000); //redirect
-          return;
-      }
-
-      try {
-        const response = await fetch('/send-message', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token, message }),
-        });
-
-        if (response.ok) {
-          messageInput.value = ''; // Clear input
-          showSuccess('Pesan terkirim!');
-        } else {
-          const errorData = await response.json();
-          showError(errorData.message);
-        }
-      } catch (error) {
-        console.error('Error sending message:', error);
-        showError('Terjadi kesalahan. Coba lagi.');
-      }
-    });
-
-        // --- Logout Logic ---
-        logoutButton.addEventListener('click', () => {
-            localStorage.removeItem('token'); // Clear token
-            window.location.href = 'login.html'; // Redirect to login
-        });
-
-    // --- Helper Functions ---
-    function showSuccess(message) {
-      successMessage.textContent = message;
-      successMessage.style.display = 'block';
-      errorMessage.style.display = 'none'; // Hide any previous errors
-      gsap.fromTo(successMessage, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.5 });
-       // Auto-hide success message after 3 seconds
-        setTimeout(() => {
-            gsap.to(successMessage, {
-                opacity: 0,
-                y: -10,
-                duration: 0.5,
-                onComplete: () => { successMessage.style.display = 'none'; }
+              gsap.to('.parallax-layer', {
+                x: x,
+                y: y,
+                duration: 1.5,
+                ease: 'power3.out'
+              });
             });
-        }, 3000);
-    }
+        }
 
-    function showError(message) {
-      errorMessage.textContent = message;
-      errorMessage.style.display = 'block';
-      successMessage.style.display = 'none'; // Hide any previous success messages
-      gsap.fromTo(errorMessage, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.5 });
-    }
 
-    // Hide messages on input
-    messageInput.addEventListener('input', () => {
-      successMessage.style.display = 'none';
-      errorMessage.style.display = 'none';
+        // --- Check Login Status ---
+        function checkLoginStatus() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/di'; // Redirect to login
+            }
+        }
+        checkLoginStatus(); // Check on page load
+
+        // --- Send Message Logic ---
+        sendButton.addEventListener('click', async () => {
+          const message = messageInput.value;
+          const token = localStorage.getItem('token');
+
+          if (!message) {
+            showError('Harap isi pesan.');
+            return;
+          }
+          if(!token){
+              showError("Anda harus login terlebih dahulu.");
+              setTimeout(()=> window.location.href = 'login.html', 2000); //redirect
+              return;
+          }
+
+          try {
+            const response = await fetch('/send-message', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ token, message }),
+            });
+
+            if (response.ok) {
+              messageInput.value = ''; // Clear input
+              showSuccess('Pesan terkirim!');
+            } else {
+              const errorData = await response.json();
+              showError(errorData.message);
+            }
+          } catch (error) {
+            console.error('Error sending message:', error);
+            showError('Terjadi kesalahan. Coba lagi.');
+          }
+        });
+
+            // --- Logout Logic ---
+            logoutButton.addEventListener('click', () => {
+                localStorage.removeItem('token'); // Clear token
+                window.location.href = 'login.html'; // Redirect to login
+            });
+
+        // --- Helper Functions ---
+        function showSuccess(message) {
+          successMessage.textContent = message;
+          successMessage.style.display = 'block';
+          errorMessage.style.display = 'none'; // Hide any previous errors
+          gsap.fromTo(successMessage, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.5 });
+            // Auto-hide success message after 3 seconds
+            setTimeout(() => {
+                gsap.to(successMessage, {
+                    opacity: 0,
+                    y: -10,
+                    duration: 0.5,
+                    onComplete: () => { successMessage.style.display = 'none'; }
+                });
+            }, 3000);
+        }
+
+        function showError(message) {
+          errorMessage.textContent = message;
+          errorMessage.style.display = 'block';
+          successMessage.style.display = 'none'; // Hide any previous success messages
+          gsap.fromTo(errorMessage, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.5 });
+        }
+
+        // Hide messages on input
+        messageInput.addEventListener('input', () => {
+          successMessage.style.display = 'none';
+          errorMessage.style.display = 'none';
+        });
+
+        // --- Inbox Functionality ---
+
+        inboxButton.addEventListener('click', () => {
+            loadInbox(); // Load inbox content
+            inboxModal.style.display = 'block'; // Show modal
+            gsap.from(inboxModal, { opacity: 0, duration: 0.3 }); // Fade in
+        });
+
+        // Close Modal
+        closeModal.addEventListener('click', () => {
+              gsap.to(inboxModal, {
+                opacity: 0,
+                duration: 0.3,
+                onComplete: () => {
+                    inboxModal.style.display = 'none';
+                }
+            });
+        });
+
+        // Close modal if clicked outside of the content
+        window.addEventListener('click', (event) => {
+            if (event.target === inboxModal) {
+                 gsap.to(inboxModal, {
+                    opacity: 0,
+                    duration: 0.3,
+                    onComplete: () => {
+                        inboxModal.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // Load Inbox Content
+        function loadInbox() {
+            const token = localStorage.getItem('token');
+            fetch(`/get-user-replies?token=${token}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Gagal mengambil inbox.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayInbox(data.replies);
+                })
+                .catch(error => {
+                    console.error('Error loading inbox:', error);
+                    inboxContent.innerHTML = `<p>Error: ${error.message}</p>`;
+                });
+        }
+
+        // Display Inbox Content
+        function displayInbox(replies) {
+            inboxContent.innerHTML = ''; // Clear previous content
+
+            if (replies.length === 0) {
+                inboxEmptyMessage.style.display = 'block';
+                return;
+            }
+            inboxEmptyMessage.style.display = 'none';
+
+            replies.forEach(messageWithReplies => {
+                // We only care about the replies, iterate those.
+                messageWithReplies.replies.forEach(reply => {
+                     const replyDiv = document.createElement('div');
+                    replyDiv.classList.add('reply');
+
+                    const infoDiv = document.createElement('div');
+                    infoDiv.classList.add('reply-info');
+                    infoDiv.textContent = `Admin - ${new Date(reply.timestamp).toLocaleString()}`;
+                    replyDiv.appendChild(infoDiv);
+
+                    const messageDiv = document.createElement('div');
+                    messageDiv.classList.add('reply-message');
+                    messageDiv.textContent = reply.message;
+                    replyDiv.appendChild(messageDiv);
+
+                    inboxContent.appendChild(replyDiv);
+                })
+
+            });
+            //Animate replies.
+            gsap.from(".reply", {opacity: 0, y: -10, stagger: 0.1, duration: 0.3})
+        }
     });
-});
     </script>
 </body>
 </html>
