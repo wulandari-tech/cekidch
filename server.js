@@ -1,34 +1,32 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const path = require('path');
-const helmet = require('helmet');
-const validator = require('validator');
-const rateLimit = require('express-rate-limit');
+const path = require('path'); // Import the 'path' module
 const app = express();
 const port = 3000;
-
-app.use(helmet());
-
-app.set('trust proxy', 1);
-
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    proxy: true
-});
-app.use(limiter);
 
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
 
-function validateInput(input) {
-    return {
-        username: validator.isLength(input.username || '', { min: 3, max: 30 }) &&
-                 validator.isAlphanumeric(input.username || ''),
-        password: validator.isLength(input.password || '', { min: 6 })
-    };
-}
+// --- Serve HTML Files ---
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html')); // Serve login.html
+});
+app.get('/daftar', (req, res) => { // Corrected route name
+    res.sendFile(path.join(__dirname, 'daftar.html')); // Serve signup.html
+});
+app.get('/request', (req, res) => {
+    res.sendFile(path.join(__dirname, 'request.html')); // Serve request.html
+});
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html')); // Serve admin.html
+});
+
+// --- Admin Credentials (HARDCODED - DO NOT USE IN PRODUCTION!) ---
+const ADMIN_USERNAME = "wanzofc";
+const ADMIN_PASSWORD = "wanz321";
+
+// --- Data Handling (data.json) ---
 
 function loadData() {
     try {
@@ -40,216 +38,175 @@ function loadData() {
 }
 
 function saveData(data) {
-    try {
-        fs.writeFileSync('data.json', JSON.stringify(data, null, 2), 'utf8');
-        return true;
-    } catch (error) {
-        console.error('Error saving data:', error);
-        return false;
-    }
+    fs.writeFileSync('data.json', JSON.stringify(data, null, 2), 'utf8');
 }
 
-function errorHandler(err, req, res, next) {
-    console.error(err.stack);
-    res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
+// --- Helper Function: Check Admin ---
+function isAdmin(token) {
+    return token === ADMIN_USERNAME; // Simple check for this example
 }
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'daftar.html'));
-});
+// --- API Endpoints ---
 
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'login.html'));
-});
+// Signup
+app.post('/signup', (req, res) => {
+    const { username, password } = req.body;
+    const data = loadData();
 
-app.get('/request', (req, res) => {
-    res.sendFile(path.join(__dirname, 'request.html'));
-});
-
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
-});
-
-app.post('/signup', (req, res, next) => {
-    try {
-        const { username, password } = req.body;
-
-        const validation = validateInput({ username, password });
-        if (!validation.username || !validation.password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid username or password format. Username should be alphanumeric (3-30 chars) and password at least 6 chars'
-            });
-        }
-
-        const data = loadData();
-
-        if (data.users[username]) {
-            return res.status(400).json({
-                success: false,
-                message: 'Username sudah terdaftar.'
-            });
-        }
-
-        data.users[username] = { password };
-        if (!saveData(data)) {
-            throw new Error('Failed to save user data');
-        }
-
-        res.status(201).json({
-            success: true,
-            message: 'Pendaftaran berhasil!'
-        });
-    } catch (error) {
-        next(error);
+    if (data.users[username]) {
+        return res.status(400).json({ message: 'Username sudah terdaftar.' });
     }
+
+    data.users[username] = { password };
+    saveData(data);
+    res.status(201).json({ message: 'Pendaftaran berhasil!' });
 });
 
-app.post('/login', (req, res, next) => {
-    try {
-        const { username, password } = req.body;
-        const validation = validateInput({ username, password });
-        if (!validation.username || !validation.password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Format username atau password tidak valid'
-            });
-        }
+// Login
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    const data = loadData();
 
-        const data = loadData();
-
-        if (!data.users[username] || data.users[username].password !== password) {
-            return res.status(401).json({
-                success: false,
-                message: 'Username atau password salah'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: 'Login berhasil!',
-            token: username
-        });
-    } catch (error) {
-        next(error);
+    // Check for admin login FIRST
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        return res.status(200).json({ message: 'Admin login berhasil!', token: ADMIN_USERNAME });
     }
+
+    // Then check for regular user login
+    if (!data.users[username] || data.users[username].password !== password) {
+        return res.status(401).json({ message: 'Username atau password salah.' });
+    }
+
+    res.status(200).json({ message: 'Login berhasil!', token: username });
 });
 
+// Send Message
 app.post('/send-message', (req, res) => {
-    try {
-        const { token, message } = req.body;
-        const data = loadData();
+    const { token, message } = req.body;
+    const data = loadData();
 
-        if (!token || !data.users[token]) {
-            return res.status(403).json({
-                success: false,
-                message: 'Akses ditolak. Login dulu.'
-            });
-        }
-
-        if (!message || typeof message !== 'string' || message.length < 1) {
-            return res.status(400).json({
-                success: false,
-                message: 'Pesan tidak valid.'
-            });
-        }
-
-        const newMessage = {
-            sender: token,
-            message: validator.escape(message),
-            timestamp: new Date().toISOString(),
-            id: Date.now(),
-            replies: []
-        };
-
-        data.messages.push(newMessage);
-        if (!saveData(data)) {
-            throw new Error('Failed to save message');
-        }
-
-        res.status(201).json({
-            success: true,
-            message: 'Pesan terkirim!'
-        });
-    } catch (error) {
-        next(error);
+    if (!data.users[token]) {
+        return res.status(403).json({ message: 'Akses ditolak. Login dulu.' });
     }
+
+    const newMessage = {
+        sender: token,
+        message,
+        timestamp: new Date().toISOString(),
+        id: Date.now(),
+        replies: []
+    };
+
+    data.messages.push(newMessage);
+    saveData(data);
+    res.status(201).json({ message: 'Pesan terkirim!' });
 });
 
-const adminRoutes = [
-    {
-        path: '/get-messages',
-        method: 'get',
-        handler: (req, res) => {
-            const data = loadData();
-            res.status(200).json({
-                success: true,
-                messages: data.messages
-            });
-        }
-    },
-    {
-        path: '/reply-message',
-        method: 'post',
-        handler: (req, res) => {
-            const { messageId, reply } = req.body;
-            const data = loadData();
-
-            const message = data.messages.find(m => m.id === parseInt(messageId));
-            if (!message) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Pesan tidak ditemukan.'
-                });
-            }
-
-            message.replies.push({
-                sender: "admin",
-                message: validator.escape(reply),
-                timestamp: new Date().toISOString(),
-            });
-
-            if (!saveData(data)) {
-                throw new Error('Failed to save reply');
-            }
-
-            res.status(200).json({
-                success: true,
-                message: 'Balasan terkirim!'
-            });
-        }
-    }
-];
-
-function adminMiddleware(req, res, next) {
-    const token = req.query.token || req.body.token;
+// Get Messages (Admin Only)
+app.get('/get-messages', (req, res) => {
+    const { token } = req.query;
+    const data = loadData();
 
     if (!isAdmin(token)) {
-        return res.status(403).json({
-            success: false,
-            message: 'Akses ditolak.'
-        });
+        return res.status(403).json({ message: 'Akses ditolak.' });
     }
-    next();
-}
 
-function isAdmin(token) {
-    const data = loadData();
-    return data.users[token] && token === ADMIN_USERNAME;
-}
-
-const ADMIN_USERNAME = 'wanzof';
-const ADMIN_PASSWORD = 'wanzo321';
-
-adminRoutes.forEach(route => {
-    app[route.method](route.path, adminMiddleware, route.handler);
+    res.status(200).json({ messages: data.messages });
 });
 
-app.use(errorHandler);
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Server berjalan di http://0.0.0.0:${port}`);
+// Reply to Message (Admin Only)
+app.post('/reply-message', (req, res) => {
+    const { token, messageId, reply } = req.body;
+    const data = loadData();
+
+    if (!isAdmin(token)) {
+        return res.status(403).json({ message: 'Akses ditolak.' });
+    }
+
+    const message = data.messages.find(m => m.id === parseInt(messageId));
+    if (!message) {
+        return res.status(404).json({ message: 'Pesan tidak ditemukan.' });
+    }
+
+    message.replies.push({
+        sender: "admin",
+        message: reply,
+        timestamp: new Date().toISOString(),
+    });
+    saveData(data);
+    res.status(200).json({ message: 'Balasan terkirim!' });
+});
+
+// Get All Users (Admin Only)
+app.get('/get-users', (req, res) => {
+    const { token } = req.query;
+    const data = loadData();
+
+    if (!isAdmin(token)) {
+        return res.status(403).json({ message: 'Akses ditolak.' });
+    }
+
+    const users = Object.keys(data.users).map(username => ({
+        username,
+        password: data.users[username].password // SECURITY RISK - Don't send passwords!
+    }));
+    res.status(200).json({ users });
+});
+
+// Create User (Admin Only)
+app.post('/create-user', (req, res) => {
+    const { token, username, password } = req.body;
+    const data = loadData();
+
+    if (!isAdmin(token)) {
+        return res.status(403).json({ message: 'Akses ditolak.' });
+    }
+
+    if (data.users[username]) {
+        return res.status(400).json({ message: 'Username sudah terdaftar.' });
+    }
+
+    data.users[username] = { password };
+    saveData(data);
+    res.status(201).json({ message: 'User berhasil dibuat!' });
+});
+
+// Delete User (Admin Only)
+app.delete('/delete-user', (req, res) => {
+    const { token, username } = req.body;
+    const data = loadData();
+
+    if (!isAdmin(token)) {
+        return res.status(403).json({ message: 'Akses ditolak.' });
+    }
+
+    if (!data.users[username]) {
+        return res.status(404).json({ message: 'User tidak ditemukan.' });
+    }
+
+    delete data.users[username];
+    data.messages = data.messages.filter(msg => msg.sender !== username); // Delete user's messages
+    saveData(data);
+    res.status(200).json({ message: 'User berhasil dihapus!' });
+});
+
+// Get User Replies (for Inbox)
+app.get('/get-user-replies', (req, res) => {
+    const { token } = req.query;
+    const data = loadData();
+
+    if (!data.users[token]) {
+        return res.status(403).json({ message: 'Akses ditolak. Login dulu.' });
+    }
+
+    const userMessagesWithReplies = data.messages.filter(
+        message => message.sender === token && message.replies.length > 0
+    );
+
+    res.status(200).json({ replies: userMessagesWithReplies });
+});
+
+
+app.listen(port, () => {
+    console.log(`Server berjalan di http://localhost:${port}`);
 });
