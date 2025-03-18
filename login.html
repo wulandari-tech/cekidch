@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <style>
-        /* Reset dan Gaya Dasar */
         * {
             margin: 0;
             padding: 0;
@@ -15,14 +14,14 @@
 
         body {
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
-            padding: 0; /* Hapus padding */
-            overflow-y: scroll; /* Aktifkan scrolling */
-            position: relative; /* Penting untuk positioning */
-            perspective: 1px; /* Untuk parallax */
-            transform-style: preserve-3d; /* Untuk parallax */
+            padding: 20px;
+            overflow: hidden;
         }
 
         @keyframes gradient {
@@ -37,17 +36,6 @@
             }
         }
 
-        /* Wrapper utama untuk konten (formulir dan animasi) */
-        .main-content {
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
-        }
-
-        /* Gaya untuk container (Formulir) */
         .container {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
@@ -56,15 +44,14 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 420px;
-            position: relative; /* Penting */
+            position: relative;
             overflow: hidden;
-            /* transform: translateX(0);  Dihapus */
-            /* opacity: 1; */
+            transform: translateX(0);
+            opacity: 1;
             animation: slideIn 0.8s ease-out;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            z-index: 3; /* Di atas elemen lain */
         }
-        /* Sisa style sama seperti sebelumnya */
+
         @keyframes slideIn {
             0% {
                 opacity: 0;
@@ -250,67 +237,59 @@
         }
 
         .animated-bg {
-            position: absolute; /* Tetap absolute */
+            position: fixed;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 0; /* Di belakang formulir */
-            top: 0;
-            left: 0;
+            z-index: -1;
         }
-        /* Sesuaikan ukuran dan posisi elemen animasi */
+
         .animated-element {
             position: absolute;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(5px);
             border-radius: 50%;
-            animation: float 10s infinite;
+            animation: float 8s infinite;
         }
 
         .animated-element:nth-child(1) {
-             width: 18vh;  /* Relatif terhadap viewport */
-            height: 18vh;
+            width: 120px;
+            height: 120px;
             top: 15%;
             right: 10%;
             animation-delay: 0s;
         }
 
         .animated-element:nth-child(2) {
-            width: 25vh;
-            height: 25vh;
+            width: 200px;
+            height: 200px;
             bottom: 20%;
             left: 15%;
             animation-delay: 2s;
         }
 
         .animated-element:nth-child(3) {
-             width: 20vh;
-            height: 20vh;
+            width: 160px;
+            height: 160px;
             top: 40%;
             left: 25%;
             animation-delay: 4s;
         }
 
         .animated-element:nth-child(4) {
-           width: 22vh;
-            height: 22vh;
+            width: 180px;
+            height: 180px;
             bottom: 10%;
             right: 20%;
             animation-delay: 6s;
         }
-        /* Animasi float yang dimodifikasi */
-          @keyframes float {
+
+        @keyframes float {
             0%, 100% {
                 transform: translateY(0) rotate(0deg);
             }
-            25% {
-              transform: translateY(-15vh) rotate(45deg) ; /* Gerakan lebih dinamis */
-            }
             50% {
-                transform: translateY(-10vh) rotate(-45deg);
-            }
-            75%{
-              transform: translateY(-5vh)  rotate(25deg);
+                transform: translateY(-20px) rotate(180deg);
             }
         }
 
@@ -358,81 +337,51 @@
                 box-shadow: 0 0 0 0 rgba(231, 60, 126, 0);
             }
         }
-          /* Section untuk konten scrollable */
-        .scroll-section {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: white;
-            position: relative;
-            z-index: 2;
-            transform-style: preserve-3d; /* Untuk parallax */
-
-        }
-
-        /* Background dan parallax untuk section */
-         .scroll-section:nth-child(1) {
-             background: url('https://via.placeholder.com/1920x1080/444444') center center / cover no-repeat fixed;
-              transform: translateZ(-0.5px) scale(1.5);
-        }
-
-        .scroll-section:nth-child(2) {
-            background: url('https://via.placeholder.com/1920x1080/666666') center center / cover no-repeat fixed;
-            transform: translateZ(-0.25px) scale(1.25);
-        }
-        .scroll-section:nth-child(3) {
-            background: url('https://via.placeholder.com/1920x1080/888888') center center / cover no-repeat fixed;
-             transform: translateZ(-0.75px) scale(1.75);
-        }
     </style>
 </head>
 <body>
-    <!-- Konten Utama (Formulir dan Animasi) -->
-    <div class="main-content">
-        <div class="animated-bg">
-            <div class="animated-element"></div>
-            <div class="animated-element"></div>
-            <div class="animated-element"></div>
-            <div class="animated-element"></div>
-        </div>
+    <div class="animated-bg">
+        <div class="animated-element"></div>
+        <div class="animated-element"></div>
+        <div class="animated-element"></div>
+        <div class="animated-element"></div>
+    </div>
 
-        <div class="container">
-            <h1>wanzofc request template</h1>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        required
-                        placeholder="Enter your username"
-                        autocomplete="off"
-                    >
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        placeholder="Enter your password"
-                    >
-                    <div class="error-message" id="error"></div>
-                </div>
-                <button type="submit">
-                    <div class="spinner" id="loading"></div>
-                    <span>Login</span>
-                </button>
-            </form>
-            <div class="links">
-                <a href="/">Don't have an account? Sign up here</a>
+    <div class="container">
+        <h1>Welcome Back</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    required 
+                    placeholder="Enter your username"
+                    autocomplete="off"
+                >
             </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    required 
+                    placeholder="Enter your password"
+                >
+                <div class="error-message" id="error"></div>
+            </div>
+            <button type="submit">
+                <div class="spinner" id="loading"></div>
+                <span>Login</span>
+            </button>
+        </form>
+        <div class="links">
+            <a href="/daftar">Don't have an account? Sign up here</a>
         </div>
     </div>
+
     <script>
         document.querySelector('button').addEventListener('click', function(e) {
             const button = e.currentTarget;
@@ -476,20 +425,20 @@
 
                 const data = await response.json();
 
-                if (response.ok) {             document.querySelector('.container').style.animation = 'slideOut 0.8s ease-in forwards';
+                if (response.ok) {             document.querySelector('.container').style.animation = 'slideOut 0.8s ease-in forwards';                  
                     setTimeout(() => {
                         window.location.href = '/request';
                     }, 800);
-                } else {
+                } else {                   
                     errorDiv.style.display = 'block';
                     errorDiv.textContent = data.message;
                     errorDiv.style.animation = 'shake 0.5s ease-in-out';
                 }
-            } catch (error) {
+            } catch (error) {       
                 errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Connection error. Please check your internet and try again.';
                 errorDiv.style.animation = 'shake 0.5s ease-in-out';
-            } finally {
+            } finally {        
                 spinner.style.display = 'none';
                 buttonText.textContent = 'Login';
                 button.disabled = false;
