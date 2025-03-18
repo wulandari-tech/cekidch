@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wanzofc Request </title>
+    <style>
+       body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Use min-height instead of height */
+            overflow-x: hidden; /* Prevent horizontal scrollbar */
+            flex-direction: column; /* Stack items vertically */
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px 40px; /* Reduced padding */
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            max-width: 600px; /* Larger max-width */
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px; /* Space between container and button */
+        }
+        h1 {
+            font-size: 2.2em; /* Slightly smaller heading */
+            margin-bottom: 0.6em;
+            color: #f0f0f0;
+             position: relative; /*  For the underline */
+            display: inline-block; /*  Make underline width match text */
+
+        }
+        h1::after { /* Animated underline */
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;  /*  Thickness of the underline */
+            background: linear-gradient(90deg, #00c4a7, #007acc); /*  Gradient */
+            transform: scaleX(0);  /* Start with 0 width */
+            transform-origin: center;
+            transition: transform 0.4s ease-out;
+        }
+        h1:hover::after {
+            transform: scaleX(1); /*  Expand to full width on hover */
+        }
+
+        textarea {
+            width: calc(100% - 40px); /*  Full width minus padding */
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #2a2a2a;
+            color: #fff;
+            font-size: 1em;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            resize: vertical; /* Allow vertical resizing */
+            min-height: 150px; /* Minimum height */
+             font-family: inherit; /* Inherit font from body */
+        }
+        textarea:focus {
+            outline: none;
+            background-color: #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+          button {
+            background: linear-gradient(135deg, #00c4a7, #007acc);
+            color: #fff;
+            padding: 12px 25px; /* Slightly smaller padding */
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;  /* Slightly smaller font */
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+             margin: 5px; /* Add margin */
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+
+        #error-message, #success-message {
+            margin-top: 10px;
+            font-size: 0.9em;
+             display: none;
+        }
+
+        #error-message {
+            color: #ff6b6b;
+        }
+        #success-message{
+              color: #4CAF50; /*  Green color for success */
+        }
+
+
+        /*  Parallax Background (Subtle) */
+        .parallax-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /*  Make it non-interactive */
+            z-index: -1; /*  Behind everything */
+        }
+        .parallax-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        /* Example: A few circles as layers */
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+        .circle-1 { background-color: #00c4a7; width: 150px; height: 150px; top: 5%; left: 60%; }
+        .circle-2 { background-color: #007acc; width: 200px; height: 200px; bottom: 50%; right: 5%; }
+        .circle-3 { background-color: #a855f7; width: 80px; height: 80px;  top: 50%; right: 60%; }
+
+         /* Logout Button Styling */
+        #logout-button {
+           background: linear-gradient(135deg, #e65c00, #F9D423); /* Example: Orange gradient */
+           /* Other styles are inherited from the button styles */
+           position: absolute; /* Absolute positioning */
+            top: 20px;        /* Position from top */
+            right: 20px;
+             padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="parallax-bg">
+        <div class="parallax-layer circle circle-1"></div>
+        <div class="parallax-layer circle circle-2"></div>
+        <div class="parallax-layer circle circle-3"></div>
+    </div>
+     <button id="logout-button">Logout</button>
+    <div class="container">
+        <h1>Wanzofc Request</h1>
+        <textarea id="message" placeholder="Tulis pesan Anda..."></textarea>
+        <button id="send-button">Kirim</button>
+        <p id="success-message"></p>
+        <p id="error-message"></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+    const sendButton = document.getElementById('send-button');
+    const messageInput = document.getElementById('message');
+    const successMessage = document.getElementById('success-message');
+    const errorMessage = document.getElementById('error-message');
+    const logoutButton = document.getElementById('logout-button');
+
+    // --- GSAP Animations ---
+    const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+    // Animate container
+    tl.from(".container", { opacity: 0, y: 50, duration: 0.8 });
+
+    // Animate textarea
+    tl.from("textarea", { opacity: 0, y: -20, duration: 0.5 }, "-=0.4");
+
+    // Animate button
+    tl.from("#send-button", { opacity: 0, scale: 0.8, duration: 0.5 }, "-=0.2");
+
+     // Animate logout button
+    tl.from("#logout-button", { opacity: 0, scale: 0.8, duration: 0.5 }, "-=0.2");
+
+
+    // Subtle Parallax (only if the user is logged in - prevents errors)
+    const parallaxBg = document.querySelector('.parallax-bg');
+    if(localStorage.getItem('token')){ // Check for token
+        document.addEventListener('mousemove', (e) => {
+          const x = (e.clientX / window.innerWidth) * 50 - 25;
+          const y = (e.clientY / window.innerHeight) * 50 - 25;
+
+          gsap.to('.parallax-layer', {
+            x: x,
+            y: y,
+            duration: 1.5,
+            ease: 'power3.out'
+          });
+        });
+    }
+
+
+    // --- Check Login Status ---
+    function checkLoginStatus() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html'; // Redirect to login
+        }
+    }
+    checkLoginStatus(); // Check on page load
+
+    // --- Send Message Logic ---
+    sendButton.addEventListener('click', async () => {
+      const message = messageInput.value;
+      const token = localStorage.getItem('token');
+
+      if (!message) {
+        showError('Harap isi pesan.');
+        return;
+      }
+      if(!token){
+          showError("Anda harus login terlebih dahulu.");
+          setTimeout(()=> window.location.href = 'login.html', 2000); //redirect
+          return;
+      }
+
+      try {
+        const response = await fetch('/send-message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token, message }),
+        });
+
+        if (response.ok) {
+          messageInput.value = ''; // Clear input
+          showSuccess('Pesan terkirim!');
+        } else {
+          const errorData = await response.json();
+          showError(errorData.message);
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        showError('Terjadi kesalahan. Coba lagi.');
+      }
+    });
+
+        // --- Logout Logic ---
+        logoutButton.addEventListener('click', () => {
+            localStorage.removeItem('token'); // Clear token
+            window.location.href = 'login.html'; // Redirect to login
+        });
+
+    // --- Helper Functions ---
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none'; // Hide any previous errors
+      gsap.fromTo(successMessage, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.5 });
+       // Auto-hide success message after 3 seconds
+        setTimeout(() => {
+            gsap.to(successMessage, {
+                opacity: 0,
+                y: -10,
+                duration: 0.5,
+                onComplete: () => { successMessage.style.display = 'none'; }
+            });
+        }, 3000);
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none'; // Hide any previous success messages
+      gsap.fromTo(errorMessage, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.5 });
+    }
+
+    // Hide messages on input
+    messageInput.addEventListener('input', () => {
+      successMessage.style.display = 'none';
+      errorMessage.style.display = 'none';
+    });
+});
+    </script>
+</body>
+</html>
