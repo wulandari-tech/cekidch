@@ -2,26 +2,25 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
-const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const validator = require('validator');
+const rateLimit = require('express-rate-limit');
 const app = express();
 const port = 3000;
 
-
 app.use(helmet());
 
+app.set('trust proxy', 1);
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 100 
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    proxy: true
 });
 app.use(limiter);
 
-
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
-
 
 function validateInput(input) {
     return {
@@ -50,9 +49,6 @@ function saveData(data) {
     }
 }
 
-function isAdmin(token) {
-    return token === ADMIN_USERNAME;
-}
 function errorHandler(err, req, res, next) {
     console.error(err.stack);
     res.status(500).json({
@@ -78,15 +74,10 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-const ADMIN_USERNAME = "wanzofc";
-const ADMIN_PASSWORD = "wanzo321";
-
-
-app.post('/signup', (req, res) => {
+app.post('/signup', (req, res, next) => {
     try {
         const { username, password } = req.body;
-        
-        
+
         const validation = validateInput({ username, password });
         if (!validation.username || !validation.password) {
             return res.status(400).json({
@@ -118,7 +109,7 @@ app.post('/signup', (req, res) => {
     }
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', (req, res, next) => {
     try {
         const { username, password } = req.body;
         const validation = validateInput({ username, password });
@@ -130,13 +121,6 @@ app.post('/login', (req, res) => {
         }
 
         const data = loadData();
-        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-            return res.status(200).json({
-                success: true,
-                message: 'Admin login berhasil!',
-                token: ADMIN_USERNAME
-            });
-        }
 
         if (!data.users[username] || data.users[username].password !== password) {
             return res.status(401).json({
@@ -243,7 +227,7 @@ const adminRoutes = [
 
 function adminMiddleware(req, res, next) {
     const token = req.query.token || req.body.token;
-    
+
     if (!isAdmin(token)) {
         return res.status(403).json({
             success: false,
@@ -252,6 +236,14 @@ function adminMiddleware(req, res, next) {
     }
     next();
 }
+
+function isAdmin(token) {
+    const data = loadData();
+    return data.users[token] && token === ADMIN_USERNAME;
+}
+
+const ADMIN_USERNAME = 'wanzof';
+const ADMIN_PASSWORD = 'wanzo321';
 
 adminRoutes.forEach(route => {
     app[route.method](route.path, adminMiddleware, route.handler);
