@@ -1,28 +1,32 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const path = require('path'); // Import the 'path' module
 const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
+
+// --- Serve HTML Files ---
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'login.html')); // Kirim file index.html
+    res.sendFile(path.join(__dirname, 'login.html')); // Serve login.html
 });
-app.get('/daftar', (req, res) => {
-    res.sendFile(path.join(__dirname, 'daftar.html')); // Kirim file index.html
+app.get('/daftar', (req, res) => { // Corrected route name
+    res.sendFile(path.join(__dirname, 'daftar.html')); // Serve signup.html
 });
 app.get('/request', (req, res) => {
-    res.sendFile(path.join(__dirname, 'request.html')); // Kirim file index.html
+    res.sendFile(path.join(__dirname, 'request.html')); // Serve request.html
 });
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html')); // Kirim file index.html
+    res.sendFile(path.join(__dirname, 'admin.html')); // Serve admin.html
 });
-// --- Admin Credentials (HARDCODED FOR THIS EXAMPLE - DO NOT DO THIS IN PRODUCTION!) ---
+
+// --- Admin Credentials (HARDCODED - DO NOT USE IN PRODUCTION!) ---
 const ADMIN_USERNAME = "wanzofc";
 const ADMIN_PASSWORD = "wanz321";
 
-// --- Data Handling (Simpan ke data.json) ---
+// --- Data Handling (data.json) ---
 
 function loadData() {
     try {
@@ -37,12 +41,12 @@ function saveData(data) {
     fs.writeFileSync('data.json', JSON.stringify(data, null, 2), 'utf8');
 }
 
-// --- Helper Function: Check Admin Token ---
+// --- Helper Function: Check Admin ---
 function isAdmin(token) {
-    return token === ADMIN_USERNAME; //  Simple check for this example
+    return token === ADMIN_USERNAME; // Simple check for this example
 }
 
-// --- Endpoint ---
+// --- API Endpoints ---
 
 // Signup
 app.post('/signup', (req, res) => {
@@ -62,18 +66,21 @@ app.post('/signup', (req, res) => {
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     const data = loadData();
-    // Check for admin login
+
+    // Check for admin login FIRST
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         return res.status(200).json({ message: 'Admin login berhasil!', token: ADMIN_USERNAME });
     }
 
+    // Then check for regular user login
     if (!data.users[username] || data.users[username].password !== password) {
         return res.status(401).json({ message: 'Username atau password salah.' });
     }
+
     res.status(200).json({ message: 'Login berhasil!', token: username });
 });
 
-// Kirim Pesan
+// Send Message
 app.post('/send-message', (req, res) => {
     const { token, message } = req.body;
     const data = loadData();
@@ -95,7 +102,7 @@ app.post('/send-message', (req, res) => {
     res.status(201).json({ message: 'Pesan terkirim!' });
 });
 
-// Ambil Pesan (Admin Only)
+// Get Messages (Admin Only)
 app.get('/get-messages', (req, res) => {
     const { token } = req.query;
     const data = loadData();
@@ -107,7 +114,7 @@ app.get('/get-messages', (req, res) => {
     res.status(200).json({ messages: data.messages });
 });
 
-// Balas Pesan (Admin Only)
+// Reply to Message (Admin Only)
 app.post('/reply-message', (req, res) => {
     const { token, messageId, reply } = req.body;
     const data = loadData();
@@ -116,7 +123,7 @@ app.post('/reply-message', (req, res) => {
         return res.status(403).json({ message: 'Akses ditolak.' });
     }
 
-    const message = data.messages.find(m => m.id === parseInt(messageId)); //messageId comes as string
+    const message = data.messages.find(m => m.id === parseInt(messageId));
     if (!message) {
         return res.status(404).json({ message: 'Pesan tidak ditemukan.' });
     }
@@ -130,9 +137,7 @@ app.post('/reply-message', (req, res) => {
     res.status(200).json({ message: 'Balasan terkirim!' });
 });
 
-// --- New Endpoints for User Management (Admin Only) ---
-
-// Get All Users
+// Get All Users (Admin Only)
 app.get('/get-users', (req, res) => {
     const { token } = req.query;
     const data = loadData();
@@ -141,10 +146,9 @@ app.get('/get-users', (req, res) => {
         return res.status(403).json({ message: 'Akses ditolak.' });
     }
 
-    // Return usernames and passwords (SECURITY RISK!  Don't do this in production!)
     const users = Object.keys(data.users).map(username => ({
         username,
-        password: data.users[username].password //  SECURITY RISK - sending passwords!
+        password: data.users[username].password // SECURITY RISK - Don't send passwords!
     }));
     res.status(200).json({ users });
 });
@@ -157,8 +161,9 @@ app.post('/create-user', (req, res) => {
     if (!isAdmin(token)) {
         return res.status(403).json({ message: 'Akses ditolak.' });
     }
+
     if (data.users[username]) {
-      return res.status(400).json({ message: 'Username sudah terdaftar.' });
+        return res.status(400).json({ message: 'Username sudah terdaftar.' });
     }
 
     data.users[username] = { password };
@@ -168,7 +173,7 @@ app.post('/create-user', (req, res) => {
 
 // Delete User (Admin Only)
 app.delete('/delete-user', (req, res) => {
-    const { token, username } = req.body; // Get username from request body.
+    const { token, username } = req.body;
     const data = loadData();
 
     if (!isAdmin(token)) {
@@ -180,25 +185,23 @@ app.delete('/delete-user', (req, res) => {
     }
 
     delete data.users[username];
-
-    //Also delete the messages from that user.
-    data.messages = data.messages.filter(msg => msg.sender !== username);
+    data.messages = data.messages.filter(msg => msg.sender !== username); // Delete user's messages
     saveData(data);
     res.status(200).json({ message: 'User berhasil dihapus!' });
 });
 
-// --- NEW: Get User Replies (for inbox) ---
+// Get User Replies (for Inbox)
 app.get('/get-user-replies', (req, res) => {
-    const { token } = req.query; // User's token.
+    const { token } = req.query;
     const data = loadData();
 
     if (!data.users[token]) {
         return res.status(403).json({ message: 'Akses ditolak. Login dulu.' });
     }
 
-    // Find messages sent by the user *and* that have replies.
-    const userMessagesWithReplies = data.messages
-        .filter(message => message.sender === token && message.replies.length > 0);
+    const userMessagesWithReplies = data.messages.filter(
+        message => message.sender === token && message.replies.length > 0
+    );
 
     res.status(200).json({ replies: userMessagesWithReplies });
 });
