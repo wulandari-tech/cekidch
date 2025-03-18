@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pterodactyl Admin</title>
+    <style>
+        /* Basic Styling (Expand as needed) */
+        body { font-family: sans-serif; }
+        .container { margin-bottom: 20px; border: 1px solid #ddd; padding: 10px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="number"], select { width: 250px; padding: 5px; margin-bottom: 10px; }
+        button { padding: 8px 12px; background-color: #4CAF50; color: white; border: none; cursor: pointer; margin-right: 5px;}
+        button:hover { background-color: #3e8e41; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .error { color: red; }
+        #loading { display: none; } /* Initially hidden */
+    </style>
+</head>
+<body>
+    <h1>Pterodactyl Admin Panel</h1>
+
+    <div id="loading">Loading...</div>
+
+    <div class="container">
+        <h2>Create Server</h2>
+        <label for="createServerName">Server Name:</label>
+        <input type="text" id="createServerName">
+        <label for="createServerDescription">Description:</label>
+        <input type="text" id="createServerDescription">
+        <label for="createServerNest">Nest ID:</label>
+        <input type="number" id="createServerNest">
+        <label for="createServerEgg">Egg ID:</label>
+        <input type="number" id="createServerEgg">
+        <label for="createServerMemory">Memory (MB):</label>
+        <input type="number" id="createServerMemory">
+        <label for="createServerDisk">Disk Space (MB):</label>
+        <input type="number" id="createServerDisk">
+
+        <button onclick="createServer()">Create Server</button>
+    </div>
+
+    <div class="container">
+        <h2>Create User</h2>
+        <label for="createUserEmail">Email:</label>
+        <input type="text" id="createUserEmail">
+        <label for="createUserUsername">Username:</label>
+        <input type="text" id="createUserUsername">
+        <label for="createUserFirstName">First Name:</label>
+        <input type="text" id="createUserFirstName">
+        <label for="createUserLastName">Last Name:</label>
+        <input type="text" id="createUserLastName">
+        <label for="createUserPassword">Password (auto-generated if empty):</label>
+        <input type="text" id="createUserPassword">
+        <button onclick="createUser()">Create User</button>
+    </div>
+  <div class="container">
+    <h2>Server List & Actions</h2>
+    <table id="serverTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Server data will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+    <div class="container">
+        <h2>User List</h2>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+      const loadingDiv = document.getElementById('loading');
+
+      // Helper function to show/hide loading
+      function showLoading() { loadingDiv.style.display = 'block'; }
+      function hideLoading() { loadingDiv.style.display = 'none'; }
+
+
+      // --- SERVER FUNCTIONS ---
+      async function fetchServers() {
+        showLoading();
+        try {
+          const response = await fetch('/servers');
+          const data = await response.json();
+          hideLoading();
+
+          if (response.ok) {
+            const serverTable = document.getElementById('serverTable').getElementsByTagName('tbody')[0];
+            serverTable.innerHTML = ''; // Clear existing rows
+
+            data.forEach(server => {
+              const row = serverTable.insertRow();
+              row.insertCell(0).textContent = server.attributes.identifier;
+              row.insertCell(1).textContent = server.attributes.name;
+              row.insertCell(2).textContent = server.attributes.description;
+
+              const actionsCell = row.insertCell(3);
+              actionsCell.innerHTML = `
+                            <button onclick="deleteServer('${server.attributes.identifier}')">Delete</button>
+                        `;
+            });
+          } else {
+            console.error('Error fetching servers:', data.error);
+          }
+
+        } catch (error) {
+          hideLoading();
+          console.error('Error fetching servers:', error);
+        }
+      }
+      async function createServer() {
+        showLoading();
+        const name = document.getElementById('createServerName').value;
+        const description = document.getElementById('createServerDescription').value;
+        const nest_id = parseInt(document.getElementById('createServerNest').value, 10);
+        const egg_id = parseInt(document.getElementById('createServerEgg').value, 10);
+        const memory = parseInt(document.getElementById('createServerMemory').value, 10);
+        const disk = parseInt(document.getElementById('createServerDisk').value, 10);
+
+
+        try {
+          const response = await fetch('/servers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, description, nest_id, egg_id, memory, disk, }),
+          });
+          const data = await response.json();
+          hideLoading();
+
+
+          if (response.ok) {
+            fetchServers(); // Refresh server list
+            alert('Server created successfully!'); // Or better UI feedback
+
+          } else {
+            alert(`Error creating server: ${data.errors.map(e => e.detail).join(', ')}`);
+            console.error(data)
+          }
+        } catch (error) {
+          hideLoading();
+          console.error('Error creating server:', error);
+        }
+      }
+      async function deleteServer(serverId) {
+        if (!confirm(`Are you sure you want to delete server ${serverId}?`)) {
+          return;
+        }
+
+        showLoading();
+        try {
+          const response = await fetch(`/servers/${serverId}`, { method: 'DELETE' });
+          hideLoading();
+
+          if (response.ok) {
+            fetchServers(); // Refresh server list
+          } else {
+            const data = await response.json()
+            alert(`Error deleting server: ${data.error || 'Unknown error'}`);
+          }
+        } catch (error) {
+          hideLoading();
+          console.error('Error deleting server:', error);
+        }
+      }
+
+      //User functions
+      async function fetchUsers() {
+        showLoading();
+        try {
+          const response = await fetch('/users');
+          const data = await response.json();
+          hideLoading();
+
+          if (response.ok) {
+            const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
+            userTable.innerHTML = '';
+
+            data.forEach(user => {
+              const row = userTable.insertRow();
+              row.insertCell(0).textContent = user.attributes.id;
+              row.insertCell(1).textContent = user.attributes.username;
+              row.insertCell(2).textContent = user.attributes.email;
+
+              const actionsCell = row.insertCell(3);
+              actionsCell.innerHTML = `<button onclick="deleteUser(${user.attributes.id})">Delete</button>`
+            })
+          } else {
+            console.error('Error fetching users:', data.error)
+          }
+        } catch (error) {
+          hideLoading();
+          console.error("Error fetching users:", error);
+        }
+      }
+      async function createUser() {
+        showLoading();
+        const email = document.getElementById('createUserEmail').value;
+        const username = document.getElementById('createUserUsername').value;
+        const first_name = document.getElementById('createUserFirstName').value;
+        const last_name = document.getElementById('createUserLastName').value;
+        const password = document.getElementById('createUserPassword').value;
+
+
+        try {
+          const response = await fetch('/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, username, first_name, last_name, password }),
+          });
+          const data = await response.json();
+          hideLoading();
+
+          if (response.ok) {
+            fetchUsers(); // Refresh user list
+            alert('User created successfully!');
+
+          } else {
+            alert(`Error creating user: ${data.errors.map(e => e.detail).join(', ')}`);
+            console.error(data);
+          }
+        } catch (error) {
+          hideLoading();
+          console.error('Error creating user:', error);
+        }
+      }
+      async function deleteUser(userId) {
+        if (!confirm(`Are you sure you want to delete user ${userId}?`)) {
+          return;
+        }
+        showLoading();
+        try {
+          const response = await fetch(`/users/${userId}`, { method: 'DELETE' });
+          hideLoading();
+          if (response.ok) {
+            fetchUsers();
+          } else {
+            const data = await response.json();
+            alert(`Error deleting user: ${data.error || 'Unknown error'}`);
+          }
+        } catch (error) {
+          hideLoading()
+          console.error('Error deleting user:', error);
+        }
+      }
+
+
+      // Initial data load
+      fetchServers();
+      fetchUsers();
+
+
+    </script>
+</body>
+</html>
