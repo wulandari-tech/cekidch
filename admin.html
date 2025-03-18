@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wanzofc Request - Admin Panel</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #121212;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column; /* Stack items vertically */
+        min-height: 100vh;
+        overflow-x: hidden; /* Prevent horizontal scrollbar */
+
+    }
+
+    .container {
+        background-color: #1e1e1e;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        padding: 30px;
+        margin: 20px auto; /* Center horizontally and add margin */
+        max-width: 800px; /* Wider container */
+        width: 90%;
+        position: relative;
+        overflow: hidden; /* For parallax and animations */
+    }
+
+    h1 {
+        font-size: 2.4em;
+        margin-bottom: 0.5em;
+        color: #f0f0f0;
+        text-align: center; /* Center the heading */
+        position: relative;
+        display: inline-block; /* For the underline */
+    }
+        h1::after { /* Animated underline */
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #00c4a7, #007acc);
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.4s ease-out;
+        }
+        h1:hover::after {
+            transform: scaleX(1);
+        }
+    #messages-container{
+        margin-top: 2rem;
+    }
+
+    .message {
+        border-bottom: 1px solid #333;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;          /* Use flexbox */
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align to the left */
+
+    }
+
+    .message-info {
+        color: #aaa;
+        font-size: 0.9em;
+        margin-bottom: 5px;
+    }
+
+    .message-text {
+        color: #fff;
+        margin-bottom: 10px;
+         word-wrap: break-word; /*  Handle long words */
+        overflow-wrap: break-word; /*  Standard property */
+    }
+     .message-text-admin {
+        color: #ddd;
+        margin-bottom: 10px;
+         word-wrap: break-word; /*  Handle long words */
+        overflow-wrap: break-word; /*  Standard property */
+        font-style: italic;
+    }
+
+    .reply-form {
+        display: flex; /* Use flexbox for layout */
+        align-items: center; /* Vertically center items */
+        margin-top: 10px;
+        width: 100%; /* Take full width */
+
+    }
+
+    .reply-form textarea {
+        flex: 1; /* Grow to fill available space */
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #2a2a2a;
+        color: #fff;
+        margin-right: 10px;
+        resize: vertical; /* Allow vertical resizing */
+        min-height: 60px;
+         font-family: inherit; /* Inherit font */
+    }
+
+     .reply-form textarea:focus {
+        outline: none;
+        background-color: #333;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .reply-form button {
+       background: linear-gradient(135deg, #00bfa5, #007acc); /*  Green/Blue */
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        flex-shrink: 0;  /*  Don't shrink the button */
+    }
+     .reply-form button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    }
+      .reply-form button:active {
+         transform: translateY(0);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+    #error-message {
+        color: #ff6b6b;
+        margin-top: 10px;
+        text-align: center;
+        display: none; /* Hidden by default */
+    }
+    /*  Parallax Background (Subtle) */
+    .parallax-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /*  Make it non-interactive */
+        z-index: -1; /*  Behind everything */
+    }
+    .parallax-layer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+    /* Example: A few circles as layers */
+    .circle {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.1;
+    }
+    .circle-1 { background-color: #00c4a7; width: 150px; height: 150px; top: 5%; left: 60%; }
+    .circle-2 { background-color: #007acc; width: 200px; height: 200px; bottom: 50%; right: 5%; }
+    .circle-3 { background-color: #a855f7; width: 80px; height: 80px;  top: 50%; right: 60%; }
+        /* Logout Button */
+    #logout-button {
+        background: linear-gradient(135deg, #e65c00, #F9D423);  /* Orange */
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        position: absolute; /* Absolute positioning */
+        top: 20px;
+        right: 20px;
+        font-size: 0.9em; /* Reduce font size slightly */
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+        #logout-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+        }
+        #logout-button:active{
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0, 0.2);
+        }
+
+    /* --- New Styles for User Management --- */
+    .user-management {
+        margin-top: 30px;
+        border-top: 2px solid #333;
+        padding-top: 20px;
+    }
+
+    .user-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .user-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #333;
+    }
+
+    .user-list-item:last-child {
+        border-bottom: none;
+    }
+
+    .user-list-item span {
+        margin-right: 10px;
+        color: #eee; /* Slightly lighter text */
+        flex-grow: 1;      /* Allow username to take up space */
+    }
+     .user-list-item .password-display {
+        color: #ccc;     /*  Lighter color for password */
+        margin-right: 15px;
+        font-style: italic;
+        flex-shrink: 0;   /*  Don't allow shrinking */
+    }
+
+    .delete-button {
+        background: linear-gradient(135deg, #c9184a, #ff5c8a); /* Red gradient */
+        color: #fff;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    .delete-button:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0, 0.4);
+    }
+    .delete-button:active{
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0,0,0, 0.2);
+    }
+
+    .create-user-form {
+        display: flex;
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        gap: 10px;      /*  Space between elements */
+        margin-bottom: 20px;
+        align-items: center; /* Vertically align items */
+    }
+     .create-user-form input[type="text"],
+    .create-user-form input[type="password"] {
+        padding: 8px;
+        border: none;
+        border-radius: 5px;
+        background-color: #2a2a2a;
+        color: #fff;
+        flex-grow: 1;       /*  Allow inputs to grow */
+        max-width: 200px;   /*  Limit max width */
+
+    }
+
+    .create-user-form button {
+         background: linear-gradient(135deg, #7209b7, #b5179e); /* Purple Gradient */
+        color: #fff;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        flex-shrink: 0; /* Prevent button from shrinking */
+    }
+     .create-user-form button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0, 0.4);
+        }
+    .create-user-form button:active{
+        transform: (0);
+        box-shadow: 0 1px 2px rgba(0,0,0, 0.2);
+    }
+
+    </style>
+</head>
+<body>
+    <div class="parallax-bg">
+        <div class="parallax-layer circle circle-1"></div>
+        <div class="parallax-layer circle circle-2"></div>
+        <div class="parallax-layer circle circle-3"></div>
+    </div>
+    <div class="container">
+         <button id="logout-button">Logout</button>
+        <h1>Wanzofc Request - Admin</h1>
+        <div id="messages-container">
+            <!-- Messages will be displayed here -->
+        </div>
+
+        <!-- User Management Section -->
+        <div class="user-management">
+            <h2>User Management</h2>
+
+            <!-- Create User Form -->
+            <form id="create-user-form" class="create-user-form">
+                <input type="text" id="new-username" placeholder="New Username" required>
+                <input type="password" id="new-password" placeholder="New Password" required>
+                <button type="submit">Create User</button>
+            </form>
+
+            <!-- User List -->
+            <ul id="user-list" class="user-list">
+                <!-- Users will be listed here -->
+            </ul>
+             <p id="user-error-message" style="color: red; display: none;"></p>
+        </div>
+
+
+        <p id="error-message"></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+    const messagesContainer = document.getElementById('messages-container');
+    const errorMessage = document.getElementById('error-message');
+    const logoutButton = document.getElementById('logout-button');
+
+    // --- User Management Elements ---
+    const userList = document.getElementById('user-list');
+    const createUserForm = document.getElementById('create-user-form');
+    const newUsernameInput = document.getElementById('new-username');
+    const newPasswordInput = document.getElementById('new-password');
+    const userErrorMessage = document.getElementById('user-error-message');
+
+    // --- GSAP Animations ---
+    const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+    // Animate container
+    tl.from(".container", { opacity: 0, y: 50, duration: 0.8 });
+
+    // Animate messages (staggered)
+    tl.from(".message", { opacity: 0, y: -20, stagger: 0.1, duration: 0.5 }, "-=0.4");
+     // Animate logout button
+    tl.from("#logout-button", { opacity: 0, scale: 0.8, duration: 0.5 }, "-=0.2");
+
+    // Subtle Parallax (check for token before applying)
+    const parallaxBg = document.querySelector('.parallax-bg');
+        if (localStorage.getItem('token')) {
+            document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 50 - 25;
+            const y = (e.clientY / window.innerHeight) * 50 - 25;
+
+            gsap.to('.parallax-layer', {
+                x: x,
+                y: y,
+                duration: 1.5,
+                ease: 'power3.out'
+            });
+        });
+    }
+
+
+    // --- Check Admin Login Status ---
+     function checkAdminLoginStatus() {
+        const token = localStorage.getItem('token');
+         //  Admin check (you might have a dedicated admin token in a real app)
+         fetch('/get-messages?token=' + token) // Send token with the request.
+            .then(response => {
+                if (!response.ok) {
+                     throw new Error('Akses ditolak'); // Or redirect directly
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Token is valid, proceed to load messages
+                loadMessages();
+                loadUsers(); // Load the user list as well
+            })
+            .catch(error => {
+                console.error('Admin check failed:', error);
+                window.location.href = '/'; // Redirect to login
+            });
+
+    }
+
+    checkAdminLoginStatus(); // Check on page load
+
+    // --- Load Messages ---
+    function loadMessages() {
+        const token = localStorage.getItem('token'); // Get token
+        fetch(`/get-messages?token=${token}`)  //  Use query parameter for GET
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Akses ditolak.  Anda bukan admin.');
+                    } else {
+                        throw new Error('Gagal mengambil pesan.');
+                    }
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayMessages(data.messages);
+            })
+            .catch(error => {
+                console.error('Error loading messages:', error);
+                showError(error.message);
+            });
+    }
+
+    // --- Display Messages ---
+    function displayMessages(messages) {
+        messagesContainer.innerHTML = ''; // Clear previous messages
+        if (messages.length === 0) {
+            messagesContainer.innerHTML = '<p>Tidak ada pesan.</p>';
+            return;
+        }
+
+        messages.forEach(message => {
+          const messageDiv = document.createElement('div');
+          messageDiv.classList.add('message');
+
+          const infoDiv = document.createElement('div');
+          infoDiv.classList.add('message-info');
+          infoDiv.textContent = `Dari: ${message.sender} - ${new Date(message.timestamp).toLocaleString()}`;
+          messageDiv.appendChild(infoDiv);
+
+          const textDiv = document.createElement('div');
+          textDiv.classList.add('message-text');
+          textDiv.textContent = message.message;
+          messageDiv.appendChild(textDiv);
+
+
+          // Display replies from Admin.
+          if(message.replies && message.replies.length > 0){
+              message.replies.forEach(reply => {
+                const replyDiv = document.createElement('div');
+                replyDiv.classList.add('message-text-admin');
+                replyDiv.textContent = `Admin: ${reply.message} - ${new Date(reply.timestamp).toLocaleString()}`;
+                messageDiv.appendChild(replyDiv)
+              })
+          }
+
+
+          // Reply Form
+          const replyForm = document.createElement('form');
+          replyForm.classList.add('reply-form');
+
+          const replyTextarea = document.createElement('textarea');
+          replyTextarea.placeholder = 'Balas pesan...';
+          replyForm.appendChild(replyTextarea);
+
+          const replyButton = document.createElement('button');
+          replyButton.textContent = 'Balas';
+          replyForm.appendChild(replyButton);
+
+          messageDiv.appendChild(replyForm);
+          messagesContainer.appendChild(messageDiv);
+
+          // --- Reply Logic ---
+          replyForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent default form submission
+            const reply = replyTextarea.value;
+            const token = localStorage.getItem('token');
+
+            if (!reply) {
+                showError('Harap isi balasan.'); // Show on the admin page itself
+                return;
+            }
+
+             fetch('/reply-message', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token, messageId: message.id, reply }), // Include messageId
+              })
+                .then(response => {
+                  if (response.ok) {
+                    //  Instead of reloading all messages, add the reply to the DOM.
+                    replyTextarea.value = ''; // Clear textarea.
+                    const replyDiv = document.createElement('div');
+                    replyDiv.classList.add('message-text-admin');
+                    replyDiv.textContent = `Admin: ${reply} - ${new Date().toLocaleString()}`;
+                    messageDiv.insertBefore(replyDiv, replyForm); //Insert before the reply form.
+                    gsap.from(replyDiv, {opacity: 0, y: -10, duration: 0.3}); //Animate it.
+
+
+                  } else {
+
+                      return response.json().then(errData => {throw new Error(errData.message)}); //  Get error message from response
+                  }
+                })
+                .catch(error => {
+                  console.error('Error replying to message:', error);
+                   showError(error.message);
+
+                });
+
+          });
+        });
+
+         // Re-apply GSAP animation to new messages
+         gsap.from(".message", { opacity: 0, y: -20, stagger: 0.1, duration: 0.5 });
+    }
+
+      // --- Logout Logic ---
+      logoutButton.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      });
+
+
+    // --- Helper Function ---
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+       gsap.fromTo(errorMessage, {opacity: 0, y: -10}, {opacity: 1, y: 0, duration: 0.5 });
+    }
+
+     // Hide error message on input (in reply forms)
+    messagesContainer.addEventListener('input', (event) => {
+        if (event.target.tagName === 'TEXTAREA') {
+            errorMessage.style.display = 'none'; // Hide error message
+        }
+    });
+      // --- User Management Functions ---
+
+    // Load Users
+    function loadUsers() {
+        const token = localStorage.getItem('token');
+        fetch(`/get-users?token=${token}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Gagal mengambil daftar user.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayUsers(data.users);
+            })
+            .catch(error => {
+                console.error('Error loading users:', error);
+                showUserError(error.message); // Use user-specific error display
+            });
+    }
+
+    // Display Users
+       function displayUsers(users) {
+        userList.innerHTML = ''; // Clear previous list
+        users.forEach(user => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('user-list-item');
+
+            const usernameSpan = document.createElement('span');
+            usernameSpan.textContent = user.username;
+            listItem.appendChild(usernameSpan);
+
+             const passwordSpan = document.createElement('span');
+            passwordSpan.textContent = `(${user.password})`; // Display password
+            passwordSpan.classList.add('password-display'); //  Add class for styling
+            listItem.appendChild(passwordSpan);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.classList.add('delete-button');
+            deleteButton.addEventListener('click', () => deleteUser(user.username));
+            listItem.appendChild(deleteButton);
+
+            userList.appendChild(listItem);
+        });
+    }
+
+    // Create User
+   createUserForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const username = newUsernameInput.value;
+    const password = newPasswordInput.value;
+    const token = localStorage.getItem('token');
+
+    if (!username || !password) {
+        showUserError('Harap isi username dan password.');
+        return;
+    }
+
+    fetch('/create-user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, username, password }),
+    })
+    .then(response => {
+        if (response.ok) {
+            newUsernameInput.value = '';
+            newPasswordInput.value = '';
+            loadUsers(); // Reload user list
+        } else {
+            return response.json().then(errData => { throw new Error(errData.message) }); // Get error from response
+        }
+    })
+    .catch(error => {
+        console.error('Error creating user:', error);
+        showUserError(error.message);
+    });
+});
+
+    // Delete User
+   async function deleteUser(username) {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch('/delete-user', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token, username }), // Send username in body
+        });
+
+        if (response.ok) {
+            loadUsers(); // Reload user list
+        } else {
+            const errorData = await response.json();
+            showUserError(errorData.message);
+        }
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        showUserError('Terjadi kesalahan saat menghapus user.');
+    }
+}
+
+     function showUserError(message) {
+        userErrorMessage.textContent = message;
+        userErrorMessage.style.display = 'block';
+        gsap.fromTo(userErrorMessage, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.5 });
+    }
+
+    // Hide user error message on input
+    newUsernameInput.addEventListener('input', () => userErrorMessage.style.display = 'none');
+    newPasswordInput.addEventListener('input', () => userErrorMessage.style.display = 'none');
+
+});
+    </script>
+</body>
+</html>
