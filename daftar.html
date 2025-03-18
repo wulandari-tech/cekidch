@@ -3,259 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wanzofc Request - Signup</title>
-     <style>
-       body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #fff;
+    <title>Request</title>
+    <style>
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            overflow: hidden; /* Prevent scrollbars */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .container {
-            background-color: #1e1e1e;
-            padding: 40px 60px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            position: relative; /* For absolute positioning of elements */
-            overflow: hidden;  /*  Hide overflowing particles/effects */
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+            opacity: 1;
+            animation: floatIn 0.8s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        /* Title with subtle animation */
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 0.7em;
-            color: #f0f0f0;
-            position: relative; /*  For the underline */
-            display: inline-block; /*  Make underline width match text */
 
+        @keyframes floatIn {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-         h1::after { /* Animated underline */
+
+        .container::before {
             content: '';
             position: absolute;
-            bottom: -5px;
-            left: 0;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) rotate(45deg);
+            }
+        }
+
+        h1 {
+            color: #1a202c;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 4px;
+            background: linear-gradient(90deg, #ee7752, #e73c7e);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 1rem;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        input {
             width: 100%;
-            height: 3px;  /*  Thickness of the underline */
-            background: linear-gradient(90deg, #00c4a7, #007acc); /*  Gradient */
-            transform: scaleX(0);  /* Start with 0 width */
-            transform-origin: center;
-            transition: transform 0.4s ease-out;
-        }
-        h1:hover::after {
-            transform: scaleX(1); /*  Expand to full width on hover */
+            padding: 1rem 1.5rem;
+            border: 2px solid rgba(226, 232, 240, 0.5);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            color: #2d3748;
         }
 
-
-        input[type="text"],
-        input[type="password"] {
-            width: calc(100% - 40px); /*  Full width minus padding */
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 8px;
-            background-color: #2a2a2a;
-            color: #fff;
-            font-size: 1em;
-            transition: background-color 0.3s, box-shadow 0.3s; /*  Smooth transitions */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /*  Subtle shadow */
-        }
-        input[type="text"]:focus,
-        input[type="password"]:focus {
+        input:focus {
             outline: none;
-            background-color: #333;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /*  Slightly stronger shadow on focus */
+            border-color: #e73c7e;
+            box-shadow: 0 0 15px rgba(231, 60, 126, 0.2);
+            transform: scale(1.02);
         }
 
-
+        input:focus + label {
+            color: #e73c7e;
+            transform: translateY(-2px);
+        }
 
         button {
-            background: linear-gradient(135deg, #00c4a7, #007acc); /*  Gradient button */
-            color: #fff;
-            padding: 15px 30px;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(45deg, #ee7752, #e73c7e);
+            color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s; /*  Transitions */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /*  Shadow */
-            text-transform: uppercase; /*  Uppercase text */
-            letter-spacing: 1px;       /*  Slight spacing */
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         button:hover {
-            transform: translateY(-2px);  /*  Slight lift */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /*  Stronger shadow on hover */
-        }
-         button:active {
-            transform: translateY(0); /*  No lift on click */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);  /* Reduced shadow */
-         }
-
-        .login-link {
-            margin-top: 25px;
-            color: #aaa;
-            font-size: 0.9em;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(231, 60, 126, 0.2);
         }
 
-        .login-link a {
-            color: #00c4a7;
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .links {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .links a {
+            color: #e73c7e;
             text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-        .login-link a:hover{
-             color: #007acc;
-        }
-        /* Error Message Styling */
-        #error-message {
-            color: #ff6b6b;  /*  Red color for errors */
-            margin-top: 10px;
-            font-size: 0.9em;
-            display: none; /* Hidden by default */
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
+        .links a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: linear-gradient(90deg, #ee7752, #e73c7e);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
 
-        /*  Parallax Background (Subtle) */
-        .parallax-bg {
+        .links a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .error-message, .success-message {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            display: none;
+            animation: slideIn 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .error-message {
+            background: rgba(254, 215, 215, 0.9);
+            color: #c53030;
+            border: 1px solid rgba(197, 48, 48, 0.2);
+        }
+
+        .success-message {
+            background: rgba(198, 246, 213, 0.9);
+            color: #2f855a;
+            border: 1px solid rgba(47, 133, 90, 0.2);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .animated-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .animated-element {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 50%;
+            animation: float 8s infinite;
+        }
+
+        .animated-element:nth-child(1) {
+            width: 120px;
+            height: 120px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .animated-element:nth-child(2) {
+            width: 180px;
+            height: 180px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .animated-element:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            bottom: 10%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .animated-element:nth-child(4) {
+            width: 150px;
+            height: 150px;
+            top: 30%;
+            right: 20%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .form-group::after {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /*  Make it non-interactive */
-            z-index: -1; /*  Behind everything */
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            animation: pulse 2s infinite;
+            display: none;
         }
-        .parallax-layer {
-            position: absolute;
-            width: 100%;
-            height: 100%;
+
+        .form-group:focus-within::after {
+            display: block;
         }
-        /* Example: A few circles as layers */
-        .circle {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(231, 60, 126, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(231, 60, 126, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(231, 60, 126, 0);
+            }
         }
-        .circle-1 { background-color: #7c3aed; width: 150px; height: 150px; top: 20%; left: 10%; }
-        .circle-2 { background-color: #007acc; width: 200px; height: 200px; bottom: 10%; right: 30%; }
-        .circle-3 { background-color: #f59e0b; width: 80px; height: 80px;  top: 60%; right: 10%; }
     </style>
 </head>
 <body>
-    <div class="parallax-bg">
-        <div class="parallax-layer circle circle-1"></div>
-        <div class="parallax-layer circle circle-2"></div>
-        <div class="parallax-layer circle circle-3"></div>
+    <div class="animated-bg">
+        <div class="animated-element"></div>
+        <div class="animated-element"></div>
+        <div class="animated-element"></div>
+        <div class="animated-element"></div>
     </div>
+
     <div class="container">
-        <h1>Wanzofc Request - Daftar</h1>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button id="signup-button">Daftar</button>
-        <p class="login-link">Sudah punya akun? <a href="/">Login</a></p>
-        <p id="error-message"></p>
+        <h1>Create Account</h1>
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    required 
+                    placeholder="Choose your username"
+                    autocomplete="off"
+                >
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    required 
+                    placeholder="Choose a strong password"
+                >
+                <div class="error-message" id="error"></div>
+                <div class="success-message" id="success"></div>
+            </div>
+            <button type="submit">
+                <div class="spinner" id="loading"></div>
+                <span>Sign Up</span>
+            </button>
+        </form>
+        <div class="links">
+            <a href="/login">Already have an account? Login here</a>
+        </div>
     </div>
 
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const signupButton = document.getElementById('signup-button');
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const errorMessage = document.getElementById('error-message');
+document.querySelector('button').addEventListener('click', function(e) {
+            const button = e.currentTarget;
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size/2;
+            const y = e.clientY - rect.top - size/2;
 
-             // --- GSAP Animations ---
-            const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.classList.add('ripple');
 
-            // Animate container
-            tl.from(".container", { opacity: 0, y: 50, duration: 0.8 });
+            button.appendChild(ripple);
 
-            // Staggered animation for inputs
-            tl.from("input", { opacity: 0, y: -20, stagger: 0.2, duration: 0.5 }, "-=0.4");
+            setTimeout(() => ripple.remove(), 600);
+        });
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            const spinner = document.getElementById('loading');
+            const button = document.querySelector('button');
+            const buttonText = button.querySelector('span');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-            // Animate button
-            tl.from("button", { opacity: 0, scale: 0.8, duration: 0.5 }, "-=0.2");
+            spinner.style.display = 'inline-block';
+            buttonText.textContent = 'Creating Account...';
+            button.disabled = true;
 
-            // Subtle Parallax
-            const parallaxBg = document.querySelector('.parallax-bg');
-            document.addEventListener('mousemove', (e) => {
-                const x = (e.clientX / window.innerWidth) * 50 - 25;
-                const y = (e.clientY / window.innerHeight) * 50 - 25;
-
-                gsap.to('.parallax-layer', {
-                    x: x,
-                    y: y,
-                    duration: 1.5,
-                    ease: 'power3.out'
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
                 });
-            });
 
-            // Signup Logic
-            signupButton.addEventListener('click', async () => {
-                const username = usernameInput.value;
-                const password = passwordInput.value;
+                const data = await response.json();
 
-                if (!username || !password) {
-                    showError('Harap isi semua field.');
-                    return;
+                if (response.ok) {
+                    
+                    errorDiv.style.display = 'none';
+                    successDiv.style.display = 'block';
+                    successDiv.textContent = "Registration successful! Redirecting to login...";
+                document.querySelector('.container').style.animation = 'floatOut 0.8s ease-in forwards';
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1500);
+                } else {
+                    
+                    successDiv.style.display = 'none';
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = data.message;
+                    errorDiv.style.animation = 'shake 0.5s ease-in-out';
                 }
-
-                try {
-                    const response = await fetch('/signup', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ username, password }),
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                         //  Tidak perlu menyimpan token untuk signup, langsung redirect ke login
-                        window.location.href = '/';
-                    } else {
-                        const errorData = await response.json();
-                        showError(errorData.message);
-                    }
-                } catch (error) {
-                    console.error('Error during signup:', error);
-                    showError('Terjadi kesalahan. Coba lagi.');
-                }
-            });
-
-
-            function showError(message) {
-                errorMessage.textContent = message;
-                errorMessage.style.display = 'block';
-                gsap.fromTo(errorMessage, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.5 });
-            }
-
-             //  Hide error message on input change
-            usernameInput.addEventListener('input', hideError);
-            passwordInput.addEventListener('input', hideError);
-
-            function hideError() {
-                 if (errorMessage.style.display === 'block') {
-                    gsap.to(errorMessage, {
-                        opacity: 0,
-                        y: -10,
-                        duration: 0.3,
-                        onComplete: () => {
-                            errorMessage.style.display = 'none';
-                        }
-                    });
-                }
+            } catch (error) {
+                successDiv.style.display = 'none';
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.animation = 'shake 0.5s ease-in-out';
+            } finally {
+                spinner.style.display = 'none';
+                buttonText.textContent = 'Sign Up';
+                button.disabled = false;
             }
         });
 
+        const keyframes = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+            @keyframes floatOut {
+                to {
+                    opacity: 0;
+                    transform: translateY(-40px);
+                }
+            }
+        `;
+
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = keyframes;
+        document.head.appendChild(styleSheet);
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('focus');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('focus');
+            });
+        });
     </script>
 </body>
 </html>
