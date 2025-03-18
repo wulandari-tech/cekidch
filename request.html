@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wanzofc Request </title>
+    <!-- Include Font Awesome (for the inbox icon) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
        body {
@@ -257,7 +258,7 @@
     <!-- Inbox Modal -->
     <div id="inbox-modal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close">×</span>
             <h2>Inbox</h2>
             <div id="inbox-content">
                 <!-- Replies will be displayed here -->
@@ -328,7 +329,7 @@
         function checkLoginStatus() {
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = '/'; // Redirect to login
+                window.location.href = 'login.html'; // Redirect to login
             }
         }
         checkLoginStatus(); // Check on page load
@@ -344,7 +345,7 @@
           }
           if(!token){
               showError("Anda harus login terlebih dahulu.");
-              setTimeout(()=> window.location.href = '/request', 2000); //redirect
+              setTimeout(()=> window.location.href = 'login.html', 2000); //redirect
               return;
           }
 
