@@ -9,7 +9,7 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname));
 
 // --- Serve HTML Files ---
-app.get('/', (req, res) => {
+app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html')); // Serve login.html
 });
 app.get('/daftar', (req, res) => { // Corrected route name
