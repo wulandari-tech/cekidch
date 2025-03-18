@@ -14,6 +14,10 @@
     "node-upload-images": "^1.0.1",
     "express": "^4.18.2",
         "request-ip": "^3.3.0",
-        "node-fetch": "^2.6.7"
+        "node-fetch": "^2.6.7",
+     "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "init": "^0.1.2",
+    "validator": "^13.12.0"
   }
 }
