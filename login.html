@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wanzofc Request - Login</title>
+    <title>wanzofc login</title>
     <style>
        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -157,11 +157,11 @@
         <div class="parallax-layer circle circle-3"></div>
     </div>
     <div class="container">
-        <h1>Wanzofc Request</h1>
+        <h1>WANZOFC REQUEST LOGIN</h1>
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button id="login-button">Login</button>
-        <p class="signup-link">Belum punya akun? <a href="signup.html">Daftar</a></p>
+        <button id="login-button">login</button>
+        <p class="signup-link">Belum punya akun? <a href="/daftar">sign up</a></p>
         <p id="error-message"></p>
     </div>
 
@@ -222,7 +222,7 @@
                         const data = await response.json();
                          // Simpan token di localStorage (atau sessionStorage)
                         localStorage.setItem('token', data.token);
-                        window.location.href = 'request.html'; //  Redirect
+                        window.location.href = '/request'; //  Redirect
                     } else {
                         const errorData = await response.json();
                         showError(errorData.message);
