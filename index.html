@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wanzofc - request</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            text-transform: lowercase; 
+        }
+        .container {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px); /* Sedikit blur */
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px; /* Padding sedikit dikurangi */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease; 
+        }
+
+        .container:hover {
+            transform: translateY(-3px); /* Lebih subtle */
+        }
+
+        h1, h2 {
+            color: #ddd; /* Warna abu-abu, tidak terlalu terang */
+            margin-bottom: 0.5em;
+            text-align: center;
+             /* Hapus letter-spacing */
+        }
+        h1{
+          font-size: 2em;
+          margin-top: 0;
+        }
+        h2{
+          font-size: 1.5em;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            font-size: 1em; /* Ukuran font diperkecil */
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 0 15px;
+        }
+
+        ul { /* Styling untuk list */
+            list-style: none; /* Hilangkan bullet bawaan */
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        ul li{
+            margin-bottom: 5px;
+             color: #ddd;
+        }
+
+        ul li::before { /* Custom bullet */
+            content: '•'; /* Karakter bullet */
+            color: #00aaff;  /* Warna bullet */
+            margin-right: 8px;
+            font-size: 1.2em;
+            position: relative;
+            top: 1px;
+
+        }
+
+
+        .line { /* Garis pemisah, sekarang solid */
+            width: 70%;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.3); /* Warna abu-abu transparan */
+            margin: 20px auto;
+            border-radius: 2px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px; /* Jarak ke garis di bawahnya */
+        }
+
+        .button-group button {
+            background: none;
+            color: white;
+            border: 2px solid #00aaff; /* Warna biru yang lebih soft */
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500; /* Sedikit lebih tipis */
+            cursor: pointer;
+            transition: all 0.2s ease; /* Transisi lebih cepat */
+            box-shadow: 0 2px 5px rgba(0, 170, 255, 0.4); /* Shadow lebih subtle */
+            position: relative;
+            overflow: hidden;
+             font-family: 'Poppins', sans-serif;
+            /* Hapus letter-spacing */
+        }
+
+        .button-group .secondary{
+           border: 2px solid #2980b9;
+        }
+
+        .button-group button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0, 170, 255, 0.2); /* Warna ripple lebih soft */
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: width 0.3s ease, height 0.3s ease, transform 0.3s ease;
+            z-index: -1;
+        }
+        .button-group .secondary::before {
+            background: rgba(41, 171, 226, 0.3);
+        }
+         .button-group button:hover::before ,.button-group .secondary:hover::before{
+            width: 200px; /* Ripple sedikit lebih kecil */
+            height: 200px;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .button-group button:hover, .button-group .secondary:hover {
+            color: #00aaff; /* Warna teks saat hover */
+            box-shadow: 0 3px 8px rgba(0, 170, 255, 0.6);
+        }
+
+        .button-group button:active,.button-group .secondary:active {
+            box-shadow: 0 1px 3px rgba(0, 170, 255, 0.4);
+        }
+
+        a { 
+            color: #00aaff;
+            text-decoration: none; 
+            transition: color 0.2s ease;
+        }
+        a:hover {
+            color: #007bff; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="button-group">
+            <button onclick="goToLogin()">login</button>
+            <button class = "secondary" onclick="goToRegister()">daftar</button>
+       </div>
+        <div class="line"></div>
+        <h1>wanzofc - request </h1>
+        <h2>ajukan permintaan anda</h2>
+        <p>
+            selamat datang di platform request wanzofc! di sini, anda dapat mengajukan permintaan untuk fitur baru, perbaikan bug, atau ide-ide kreatif lainnya yang ingin anda lihat diimplementasikan. kami sangat menghargai masukan anda dan berkomitmen untuk terus meningkatkan layanan kami.
+        </p>
+        <p>
+           jelaskan permintaan anda secara detail pada <a href="#" onclick="goToLoginOrAlert()">formulir</a> ini.  sertakan informasi sebanyak mungkin, seperti:
+        </p>
+        <ul>
+          <li>deskripsi permintaan: apa yang ingin anda lihat?</li>
+          <li>alasan: mengapa permintaan ini penting atau bermanfaat?</li>
+          <li>contoh (jika ada): bagaimana anda membayangkan fitur ini bekerja?</li>
+        </ul>
+
+    </div>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function goToLogin() {
+            Swal.fire({
+                title: 'menuju halaman login',
+                text: 'anda akan diarahkan ke halaman login.',
+                icon: 'info',
+                confirmButtonText: 'iya bang wanz',
+                 customClass:{
+                    popup: 'my-swal-popup',
+                    title:  'my-swal-title',
+                    content: 'my-swal-content',
+                    confirmButton: 'my-swal-confirm-btn',
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/login.html'; 
+                }
+            });
+        }
+
+        function goToRegister() {
+            Swal.fire({
+                title: 'menuju halaman registrasi',
+                text: 'anda akan diarahkan ke halaman registrasi.',
+                icon: 'info',
+                confirmButtonText: 'iya bang wanz',
+                customClass:{
+                    popup: 'my-swal-popup',
+                    title:  'my-swal-title',
+                    content: 'my-swal-content',
+                    confirmButton: 'my-swal-confirm-btn',
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'daftar.html'; // Ganti
+                }
+            });
+        }
+
+         function goToLoginOrAlert() {
+            // Cek status login (contoh sederhana, perlu diganti dengan logika sebenarnya)
+            const isLoggedIn = false; // Ganti dengan pengecekan status login yang sebenarnya
+
+            if (isLoggedIn) {
+                // Jika sudah login, arahkan ke formulir permintaan
+                window.location.href = 'form_permintaan.html'; // Ganti dengan URL formulir
+            } else {
+                // Jika belum login, tampilkan SweetAlert dan arahkan ke halaman login
+                Swal.fire({
+                    title: 'login diperlukan',
+                    text: 'anda perlu login untuk mengakses formulir permintaan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'login',
+                    cancelButtonText: 'batal',
+                    customClass:{
+                        popup: 'my-swal-popup',
+                        title:  'my-swal-title',
+                        content: 'my-swal-content',
+                        confirmButton: 'my-swal-confirm-btn',
+                        cancelButton:  'my-swal-cancel-btn'
+                    }
+
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'login.html'; // Ganti
+                    }
+                });
+            }
+        }
+
+    </script>
+     <style> /*tambahkan ini */
+    .my-swal-popup {
+        background-color: #302b63;
+        color: white;
+        border-radius: 25px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        font-family: 'Poppins', sans-serif;
+        text-transform: lowercase;
+    }
+
+    .my-swal-title {
+        color: #ddd;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.4em;
+    }
+
+    .my-swal-content {
+        font-size: 1em;
+    }
+
+    .my-swal-confirm-btn {
+        background: linear-gradient(135deg, #00B7FF, #007BFF);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        font-family: 'Poppins', sans-serif;
+    }
+    .my-swal-cancel-btn {
+        background: grey;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        font-family: 'Poppins', sans-serif;
+    }
+     .my-swal-confirm-btn:hover, .my-swal-cancel-btn:hover{
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+     }
+
+    </style>
+</body>
+</html>
