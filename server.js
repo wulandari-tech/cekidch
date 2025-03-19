@@ -10,6 +10,10 @@ app.use(express.static(__dirname));
 
 // --- Serve HTML Files ---
 app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html')); // Serve login.html
+});
+// --- Serve HTML Files ---
+app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html')); // Serve login.html
 });
 app.get('/daftar', (req, res) => { // Corrected route name
